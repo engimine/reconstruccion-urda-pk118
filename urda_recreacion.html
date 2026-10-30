@@ -1,0 +1,191 @@
+<title>Accidente de Urda</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;800&family=IBM+Plex+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: una columna de lectura; el esquema de vía con control de tiempo es la pieza central */
+:root{
+  --bg:#f4f5f6; --panel:#ffffff; --fg:#1b2228; --muted:#5d6872; --line:#cfd5da;
+  --ave:#5a2d82; --iryo:#b3123e; --signal:#c77700; --track:#3b444c; --nolzb:#f3e3c4;
+  --display:"Public Sans",system-ui,sans-serif; --mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#12161a; --panel:#1a2026; --fg:#e4e8eb; --muted:#97a3ad; --line:#323b43;
+  --ave:#a77fd6; --iryo:#f0577c; --signal:#f0a434; --track:#aab4bd; --nolzb:#3a2f1c; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#12161a; --panel:#1a2026; --fg:#e4e8eb; --muted:#97a3ad; --line:#323b43;
+  --ave:#a77fd6; --iryo:#f0577c; --signal:#f0a434; --track:#aab4bd; --nolzb:#3a2f1c; color-scheme:dark}
+body{background:var(--bg);color:var(--fg);font-family:var(--display);line-height:1.55;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+main{max-width:860px;margin:0 auto;padding-block:28px 48px;display:grid;gap:28px}
+h1{font-size:clamp(1.6rem,4.5vw,2.3rem);line-height:1.15;margin:0;text-wrap:balance;font-weight:800}
+h2{font-size:1.1rem;margin:0 0 10px;text-wrap:balance}
+.eyebrow{font-family:var(--mono);font-size:.78rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.lede{max-width:65ch;margin:8px 0 0;color:var(--muted)}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.facts div{background:var(--panel);padding:12px 14px}
+.facts b{display:block;font-family:var(--mono);font-size:1.15rem;font-variant-numeric:tabular-nums}
+.facts span{font-size:.82rem;color:var(--muted)}
+.sim{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:16px;display:grid;gap:12px}
+.clock{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.clock time{font-family:var(--mono);font-size:2rem;font-weight:600;font-variant-numeric:tabular-nums}
+.clock .state{font-size:.9rem;color:var(--muted);min-width:0}
+.svgwrap{overflow-x:auto}
+svg{display:block;width:100%;min-width:560px;height:auto}
+.controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+button{font:600 .9rem var(--display);background:var(--fg);color:var(--bg);border:0;border-radius:5px;padding:8px 14px;cursor:pointer}
+button.ghost{background:transparent;color:var(--fg);border:1px solid var(--line)}
+button:focus-visible,input:focus-visible{outline:2px solid var(--signal);outline-offset:2px}
+input[type=range]{flex:1;min-width:180px;accent-color:var(--signal)}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:.82rem;color:var(--muted)}
+.legend i{display:inline-block;width:14px;height:8px;border-radius:2px;margin-right:6px;vertical-align:middle}
+ol.tl{list-style:none;margin:0;padding:0;display:grid;gap:0;border-left:2px solid var(--line)}
+ol.tl li{padding:10px 0 10px 16px;position:relative;cursor:pointer;opacity:.55;transition:opacity .2s}
+ol.tl li.on{opacity:1}
+ol.tl li::before{content:"";position:absolute;left:-7px;top:16px;width:12px;height:12px;border-radius:50%;background:var(--panel);border:2px solid var(--line)}
+ol.tl li.on::before{background:var(--signal);border-color:var(--signal)}
+ol.tl time{font-family:var(--mono);font-weight:600;margin-right:8px}
+ol.tl p{margin:2px 0 0;max-width:65ch}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px}
+.cols>section{min-width:0}
+ul{margin:0;padding-left:18px;display:grid;gap:6px}
+.note{font-size:.85rem;color:var(--muted);max-width:65ch}
+footer{border-top:1px solid var(--line);padding-top:14px;font-size:.78rem;color:var(--muted);display:grid;gap:8px}
+a{color:inherit}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<main>
+  <header>
+    <div class="eyebrow">Recreación · LAV Madrid–Sevilla · 28 oct 2026</div>
+    <h1>Choque por alcance entre un AVE y un Iryo en Urda (Toledo)</h1>
+    <p class="lede">Reconstrucción esquemática basada en la información publicada a 29 de octubre: declaraciones del ministro de Transportes, audios del Centro de Control de Atocha difundidos por EFE y datos de posición de los trenes. Las distancias y velocidades del esquema son aproximadas.</p>
+  </header>
+
+  <div class="facts" aria-label="Datos clave">
+    <div><b>08:48–08:54</b><span>hora del impacto (Iryo / 112)</span></div>
+    <div><b>PK 118</b><span>entre Mora/Orgaz y Urda</span></div>
+    <div><b>397 + 147</b><span>viajeros AVE + Iryo</span></div>
+    <div><b>68–69</b><span>fallecidos (balance provisional)</span></div>
+    <div><b>&gt;100</b><span>heridos, ~15 muy graves</span></div>
+  </div>
+
+  <section class="sim" aria-label="Simulación">
+    <div class="clock"><time id="t">08:28</time><span class="state" id="state">Circulación normal con LZB.</span></div>
+    <div class="svgwrap">
+      <svg id="svg" viewBox="0 0 800 210" role="img" aria-label="Esquema de vía entre los PK 90 y 122 con la posición de ambos trenes">
+        <rect id="nolzb" x="0" y="50" width="800" height="70" fill="var(--nolzb)" opacity="0"/>
+        <text id="nolzbTxt" x="10" y="66" font-family="IBM Plex Mono" font-size="11" fill="var(--signal)" opacity="0">TRAMO SIN LZB (63 km) · solo señalización lateral BSL</text>
+        <line x1="20" y1="100" x2="780" y2="100" stroke="var(--track)" stroke-width="3"/>
+        <g id="ticks"></g>
+        <path d="M 640 106 L 680 150 L 760 150" fill="none" stroke="var(--line)" stroke-dasharray="4 4"/>
+        <text x="690" y="166" font-family="Public Sans" font-size="10" fill="var(--muted)">terraplén</text>
+        <g id="iryo"></g>
+        <g id="ave"></g>
+        <g id="flash" opacity="0"><circle r="18" fill="none" stroke="var(--signal)" stroke-width="3"/><circle r="6" fill="var(--signal)"/></g>
+        <text x="20" y="200" font-family="Public Sans" font-size="11" fill="var(--muted)">→ sentido de la marcha (esquemático)</text>
+      </svg>
+    </div>
+    <div class="controls">
+      <button id="play" type="button">Reproducir</button>
+      <button id="reset" class="ghost" type="button">Reiniciar</button>
+      <input id="slider" type="range" min="0" max="1680" step="5" value="0" aria-label="Hora de la simulación">
+    </div>
+    <div class="legend"><span><i style="background:var(--ave)"></i>AVE de Renfe</span><span><i style="background:var(--iryo)"></i>Iryo</span><span><i style="background:var(--nolzb);border:1px solid var(--signal)"></i>sin protección LZB</span></div>
+  </section>
+
+  <section>
+    <h2>Cronología</h2>
+    <ol class="tl" id="tl"></ol>
+  </section>
+
+  <div class="cols">
+    <section>
+      <h2>Qué falló, según lo conocido</h2>
+      <ul>
+        <li>Cae la central LZB de Urda por un fallo de comunicación entre tres ordenadores. El LZB es el sistema continuo que vigila la distancia entre trenes y los frena; data de 1992 y está en proceso de sustitución por ERTMS.</li>
+        <li>El Centro de Control ordena al AVE desconectar el LZB y seguir con <em>marcha normal</em> bajo señales laterales (BSL), con el Iryo parado delante. Con <em>marcha a la vista</em> habría ido a unos 40 km/h y podría haber frenado al ver el obstáculo.</li>
+        <li>Según el ministro, con el circuito de vía ocupado por el Iryo el AVE debía permanecer detenido. La orden no se corrigió durante el recorrido.</li>
+      </ul>
+    </section>
+    <section>
+      <h2>Lo que aún no está claro</h2>
+      <ul>
+        <li>Qué indicaban los semáforos que encontró el maquinista del AVE.</li>
+        <li>La hora exacta del choque: Iryo dice 08:48 y el 112, 08:54.</li>
+        <li>Los tiempos no encajan del todo: 25 km a 150–200 km/h son 8–10 minutos, mientras EFE habla de unos 17 minutos sin rectificar la orden.</li>
+        <li>El reparto de víctimas entre trenes varía según la fuente.</li>
+      </ul>
+    </section>
+  </div>
+
+  <section>
+    <h2>Claves para la investigación</h2>
+    <p class="note" style="max-width:none">Habrá dos vías en paralelo: la técnica de la Comisión de Investigación de Accidentes Ferroviarios (CIAF), que busca causas y recomendaciones y no atribuye culpas, y la judicial, que sí dirime responsabilidades penales y civiles. Los puntos sensibles serán el protocolo de Adif para operar con el LZB caído (cuándo exigir marcha a la vista), la cadena de decisión en el Centro de Control, la custodia de audios y registros de los trenes, y la responsabilidad patrimonial del administrador de la infraestructura frente a viajeros y operadores. El sindicato UGT en Adif ya ha advertido de que el LZB fallaba más de lo habitual y pide no centrar todo en el error humano.</p>
+  </section>
+
+  <footer>
+    <div>Fuentes: EFE (vía Hoy, 29/10/2026), elDiario.es, Hosteltur, Libertad Digital, CNN Español, La Nación, El Tiempo. Datos provisionales sujetos a revisión oficial.</div>
+    <div>María Jesús Puerta Angulo — Ingeniera de Minas (Col. NE-347C) · Graduada en Ingeniería de Recursos Naturales y Energéticos · Graduada en Administración y Gestión Inmobiliaria · Máster en Ingeniería y Gestión Ambiental · Máster en Arquitectura y Bioconstrucción · Máster en Prevención de Riesgos Laborales · Máster en IA aplicada a Ingeniería y Arquitectura</div>
+  </footer>
+</main>
+
+<script>
+(function(){
+  // Tiempo en segundos desde 08:28:00. Escala: PK 90 -> x=20, PK 122 -> x=780
+  const T0 = 8*3600+28*60;
+  const kmX = k => 20 + (k-90)*(760/32);
+  const ev = [
+    {s:0,    t:"08:28", txt:"Ambos trenes circulan por la línea Madrid–Sevilla con el LZB activo.", st:"Circulación normal con LZB."},
+    {s:120,  t:"≈08:30", txt:"Cae la central LZB de Urda. 63 km quedan sin el sistema y seis trenes se detienen automáticamente, entre ellos el Iryo y el AVE.", st:"LZB caído: frenado automático de seis trenes."},
+    {s:240,  t:"08:30–08:35", txt:"La maquinista del Iryo avisa a Atocha de que está detenida. El maquinista del AVE comunica un fallo de transmisión.", st:"Trenes parados. Comunicaciones con el Centro de Control."},
+    {s:480,  t:"08:36", txt:"Atocha ordena al AVE desconectar el LZB y reanudar en marcha normal bajo señales laterales (BSL), con el Iryo parado delante.", st:"El AVE reanuda en marcha normal (hasta 200 km/h)."},
+    {s:900,  t:"08:36–08:48", txt:"El AVE recorre unos 25 km a una media de 150–200 km/h. La orden no se rectifica.", st:"El AVE se aproxima al Iryo detenido."},
+    {s:1200, t:"08:48", txt:"El AVE alcanza por detrás al Iryo en el PK 118. Dos coches del Iryo descarrilan y caen por el terraplén.", st:"Impacto en el PK 118."},
+    {s:1560, t:"08:54", txt:"Hora del aviso registrada por el 112. Se activa el operativo de emergencia y se suspende la alta velocidad Madrid–Andalucía.", st:"Emergencias en camino. Línea cortada."}
+  ];
+  const tl = document.getElementById('tl');
+  ev.forEach((e,i)=>{const li=document.createElement('li');li.innerHTML='<time>'+e.t+'</time><p>'+e.txt+'</p>';li.onclick=()=>set(e.s);tl.appendChild(li);});
+
+  const ticks=document.getElementById('ticks');
+  for(let k=90;k<=122;k+=4){const x=kmX(k);ticks.insertAdjacentHTML('beforeend',`<line x1="${x}" y1="96" x2="${x}" y2="104" stroke="var(--track)"/><text x="${x}" y="120" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" fill="var(--muted)">PK ${k}</text>`);}
+
+  const ns='http://www.w3.org/2000/svg';
+  function train(g,color,label,cars){g.innerHTML='';const r=[];for(let i=0;i<cars;i++){const c=document.createElementNS(ns,'rect');c.setAttribute('width',15);c.setAttribute('height',10);c.setAttribute('rx',2);c.setAttribute('fill',color);g.appendChild(c);r.push(c);}const t=document.createElementNS(ns,'text');t.textContent=label;t.setAttribute('font-family','Public Sans');t.setAttribute('font-size','11');t.setAttribute('font-weight','600');t.setAttribute('fill',color);g.appendChild(t);return {r,t};}
+  const iryo=train(document.getElementById('iryo'),'var(--iryo)','Iryo · 147 viajeros',8);
+  const ave=train(document.getElementById('ave'),'var(--ave)','AVE · 397 viajeros',8);
+
+  function place(tr,headX,derail){tr.r.forEach((c,i)=>{let x=headX-(i+1)*16, y=89;
+      if(derail && i>=6){const d=i-6; x=headX-(6)*16+ (d===0?6:20); y=124+d*14;}
+      c.setAttribute('x',x);c.setAttribute('y',y);c.setAttribute('transform',derail&&i>=6?`rotate(${i===6?28:40} ${x+7} ${y+5})`:'');});
+    tr.t.setAttribute('x',headX-128);tr.t.setAttribute('y',82);}
+
+  const fmt=s=>{const a=T0+s,h=Math.floor(a/3600),m=Math.floor(a%3600/60);return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0');};
+  const iryoHead = kmX(118)+8*16; // cola del Iryo en PK 118
+  const aveStart = kmX(93), aveHit = kmX(118);
+  let cur=0;
+  function set(s){cur=s;document.getElementById('slider').value=s;
+    document.getElementById('t').textContent=fmt(s);
+    let st=ev[0].st; ev.forEach((e,i)=>{if(s>=e.s)st=e.st; tl.children[i].classList.toggle('on',s>=e.s);});
+    document.getElementById('state').textContent=st;
+    const nz=s>=120?1:0; document.getElementById('nolzb').setAttribute('opacity',nz?.7:0); document.getElementById('nolzbTxt').setAttribute('opacity',nz);
+    // Iryo: avanza hasta 08:30 y queda parado
+    const iH = s<120 ? iryoHead - (120-s)*0.35 : iryoHead;
+    // AVE: avanza, parado 08:30–08:36, luego 25 km hasta 08:48
+    let aH;
+    if(s<120) aH=aveStart-(120-s)*0.35;
+    else if(s<480) aH=aveStart;
+    else if(s<1200) aH=aveStart+(aveHit-aveStart)*((s-480)/720);
+    else aH=aveHit;
+    const hit=s>=1200;
+    place(iryo,iH,hit); place(ave,aH,false);
+    const f=document.getElementById('flash'); f.setAttribute('opacity',hit?1:0); f.setAttribute('transform',`translate(${aveHit} 94)`);
+  }
+  let timer=null;
+  const play=document.getElementById('play');
+  play.onclick=()=>{ if(timer){clearInterval(timer);timer=null;play.textContent='Reproducir';return;}
+    if(cur>=1680)set(0); play.textContent='Pausa';
+    timer=setInterval(()=>{ if(cur>=1680){clearInterval(timer);timer=null;play.textContent='Reproducir';return;} set(cur+10);},50);};
+  document.getElementById('reset').onclick=()=>{if(timer){clearInterval(timer);timer=null;play.textContent='Reproducir';}set(0);};
+  document.getElementById('slider').oninput=e=>set(+e.target.value);
+  set(1200);
+})();
+</script>

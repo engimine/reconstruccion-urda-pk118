@@ -1,0 +1,416 @@
+<title>Planos PK 118 Urda</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Condensed:wght@400;500;700&family=IBM+Plex+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: juego de láminas técnicas A3 apaisadas, una bajo otra, con barra de control común */
+:root{
+  --bg:#e9ebe8; --fg:#1d2329; --muted:#5d666e; --line:#c9cec9; --panel:#ffffff; --accent:#c26f00;
+  --paper:#fbfaf6; --ink:#1d2329;
+  --sans:"IBM Plex Sans Condensed","Arial Narrow",system-ui,sans-serif; --mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#15191c;--fg:#e2e6e8;--muted:#98a2aa;--line:#323a40;--panel:#1d2328;--accent:#f0a33a;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#15191c;--fg:#e2e6e8;--muted:#98a2aa;--line:#323a40;--panel:#1d2328;--accent:#f0a33a;color-scheme:dark}
+body{background:var(--bg);color:var(--fg);font-family:var(--sans);line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+main{max-width:1240px;margin:0 auto;padding-block:24px 48px;display:grid;grid-template-columns:minmax(0,1fr);gap:22px}
+main>*{min-width:0}
+h1{font-size:clamp(1.5rem,3.6vw,2.1rem);margin:0;line-height:1.15;text-wrap:balance;font-weight:700}
+.eyebrow{font-family:var(--mono);font-size:.74rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.credit{margin-top:6px;font-size:.95rem}.credit a{color:var(--accent);font-weight:700;text-decoration:none;border-bottom:1px solid currentColor}
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px;display:grid;gap:10px;box-shadow:0 6px 20px rgba(0,0,0,.08)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+button{font:600 .85rem var(--sans);background:var(--panel);color:var(--fg);border:1px solid var(--line);border-radius:6px;padding:6px 11px;cursor:pointer}
+button[aria-pressed="true"]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+button.primary{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px 16px}
+.f{display:grid;gap:2px;min-width:0}.f label{font-size:.78rem;color:var(--muted);display:flex;justify-content:space-between;gap:6px}.f b{font-family:var(--mono);color:var(--fg)}
+input[type=range]{accent-color:var(--accent);width:100%}
+.kp{display:flex;gap:16px;flex-wrap:wrap;font-family:var(--mono);font-size:.82rem}.kp span{color:var(--muted)}.kp b{color:var(--fg)}
+.sheet{background:#fbfaf6;border-radius:4px;box-shadow:0 1px 2px rgba(0,0,0,.15),0 10px 30px rgba(0,0,0,.12);overflow:hidden}
+.sheet svg{display:block;width:100%;height:auto}
+.toc{display:flex;gap:8px;flex-wrap:wrap}.toc a{font-family:var(--mono);font-size:.8rem;color:var(--fg);text-decoration:none;border:1px solid var(--line);border-radius:99px;padding:3px 10px;background:var(--panel)}
+.note{font-size:.85rem;color:var(--muted);max-width:90ch}
+@media (max-width:700px){.bar{position:static}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<main>
+<header>
+  <div class="eyebrow">Juego de planos · Reconstrucción técnica · LAV Madrid–Sevilla · PK 118 · 28/10/2026</div>
+  <h1>Planos técnicos del alcance AVE 2080 – Iryo 6076</h1>
+  <div class="credit">Creado por <b>María Jesús Puerta Angulo</b> · <a href="https://www.mariajesuspuertaangulo.com" target="_blank" rel="noopener">mariajesuspuertaangulo.com</a></div>
+  <p class="note" style="margin-top:8px">Cinco láminas A3 vinculadas a la misma simulación. La base de tipo satélite es una reconstrucción del uso del suelo, no una ortofoto. El trazado es esquemático y la curva del PK 115–118 es una hipótesis de radio. Todo se actualiza al mover los controles.</p>
+  <nav class="toc" aria-label="Láminas" style="margin-top:10px"><a href="#L1">L-01 Situación</a><a href="#L2">L-02 Planta de detalle</a><a href="#L3">L-03 Diagrama de marcha</a><a href="#L4">L-04 Sección PK 118</a><a href="#L5">L-05 Visibilidad y sol</a></nav>
+</header>
+
+<div class="bar" aria-label="Controles">
+  <div class="row" role="group" aria-label="Escenario">
+    <button type="button" data-preset="a" aria-pressed="true">A · Impacto 08:48</button>
+    <button type="button" data-preset="b" aria-pressed="false">B · Impacto 08:54</button>
+    <button type="button" data-preset="c" aria-pressed="false">C · 175 km/h</button>
+    <button type="button" data-preset="d" aria-pressed="false">D · Marcha a la vista</button>
+    <button type="button" class="primary" id="play">Reproducir</button>
+  </div>
+  <div class="fields">
+    <div class="f"><label for="tt">Hora <b id="oT">08:47:50</b></label><input id="tt" type="range" min="-360" max="800" step="1" value="700"></div>
+    <div class="f"><label for="pR">Radio de curva (hipótesis) <b id="oR"></b></label><input id="pR" type="range" min="2500" max="12000" step="100" value="4200"></div>
+    <div class="f"><label for="pM">Obstáculo lateral interior <b id="oM"></b></label><input id="pM" type="range" min="2" max="40" step="0.5" value="8"></div>
+    <div class="f"><label for="pTr">Tiempo de reacción <b id="oTr"></b></label><input id="pTr" type="range" min="1" max="5" step="0.1" value="2.5"></div>
+    <div class="f"><label for="pA">Deceleración AVE <b id="oA"></b></label><input id="pA" type="range" min="0.6" max="1.3" step="0.05" value="1.0"></div>
+  </div>
+  <div class="kp" aria-live="polite"><div><span>Crucero</span> <b id="kV"></b></div><div><span>Visibilidad</span> <b id="kS"></b></div><div><span>Parada necesaria</span> <b id="kD"></b></div><div><span>Impacto</span> <b id="kI"></b></div><div><span>AVE ahora</span> <b id="kP"></b></div></div>
+</div>
+
+<section class="sheet" id="L1"><svg id="s1" viewBox="0 0 1190 842" role="img" aria-label="Plano de situación"></svg></section>
+<section class="sheet" id="L2"><svg id="s2" viewBox="0 0 1190 842" role="img" aria-label="Planta de detalle"></svg></section>
+<section class="sheet" id="L3"><svg id="s3" viewBox="0 0 1190 842" role="img" aria-label="Diagrama de marcha"></svg></section>
+<section class="sheet" id="L4"><svg id="s4" viewBox="0 0 1190 842" role="img" aria-label="Sección transversal"></svg></section>
+<section class="sheet" id="L5"><svg id="s5" viewBox="0 0 1190 842" role="img" aria-label="Visibilidad y sol"></svg></section>
+
+<p class="note">Fuentes: EFE, elDiario.es, The Objective, Lisanews (PK y municipio); Wikipedia, perfil de velocidades de la LAV Madrid–Sevilla; ficha Siemens Velaro E y Wikipedia Frecciarossa 1000; predicción AEMET 28/10/2026; posición solar NOAA. Coordenadas y trazado aproximados: para uso pericial deben sustituirse por la planta oficial de Adif, el MDT05 y la ortofoto PNOA del IGN.</p>
+<p class="note">María Jesús Puerta Angulo — Ingeniera de Minas (Col. NE-347C) · Graduada en Ingeniería de Recursos Naturales y Energéticos · Graduada en Administración y Gestión Inmobiliaria · Máster en Ingeniería y Gestión Ambiental · Máster en Arquitectura y Bioconstrucción · Máster en Prevención de Riesgos Laborales · Máster en IA aplicada a Ingeniería y Arquitectura</p>
+</main>
+
+<script>
+(function(){
+const $=id=>document.getElementById(id);
+const NS='http://www.w3.org/2000/svg';
+const fmt=(n,d=0)=>Number(n).toLocaleString('es-ES',{minimumFractionDigits:d,maximumFractionDigits:d});
+const INK='#1d2329',RED='#b3261e',BLUE='#1f5fa8',ORA='#d07a00',GRN='#2e7d32',AVEC='#6b2fa0',IRC='#b3123e',GRY='#8a9096',PAPER='#fbfaf6';
+function E(tag,a,p,txt){const e=document.createElementNS(NS,tag);for(const k in a)e.setAttribute(k,a[k]);if(txt!==undefined)e.textContent=txt;if(p)p.appendChild(e);return e;}
+const T=(p,x,y,txt,o={})=>E('text',Object.assign({x,y,'font-family':o.mono?'IBM Plex Mono, monospace':'IBM Plex Sans Condensed, Arial Narrow, sans-serif','font-size':o.s||11,fill:o.c||INK,'text-anchor':o.a||'start','font-weight':o.w||400},o.extra||{}),p,txt);
+const Ln=(p,x1,y1,x2,y2,c=INK,w=1,da)=>E('line',Object.assign({x1,y1,x2,y2,stroke:c,'stroke-width':w},da?{'stroke-dasharray':da}:{}),p);
+
+/* ---------------- Simulación (misma que la reconstrucción 3D) ---------------- */
+const D=25000,ACC=0.4,BASE=8*3600+36*60,PK0=93;
+const P={V:134,S:518,tr:2.5,ab:1.0,R:4200,m:8,mA:457,mI:512};
+function cruiseFor(T){const a=ACC,disc=a*a*T*T-2*a*D;return disc<0?200:Math.min(200,(a*T-Math.sqrt(disc))*3.6);}
+const PRE={a:()=>Math.round(cruiseFor(720)),b:()=>Math.round(cruiseFor(1080)),c:()=>175,d:()=>40};
+let SIM;
+function simulate(){const V=P.V/3.6;let x=0,v=0,t=0,dt=0.1,seen=null,brake=false,last=-1,res='impact',xSee=null;const s={t:[],x:[],v:[]};
+  while(t<12000){const rem=D-x;if(seen===null&&rem<=P.S){seen=t;xSee=x;}if(seen!==null&&!brake&&t>=seen+P.tr)brake=true;
+    if(brake)v=Math.max(0,v-P.ab*dt);else if(v<V)v=Math.min(V,v+ACC*dt);x+=v*dt;t+=dt;
+    if(t-last>=0.5){s.t.push(t);s.x.push(Math.min(x,D));s.v.push(v);last=t;}if(x>=D){x=D;break;}if(brake&&v<=0){res='stop';break;}}
+  s.t.push(t);s.x.push(x);s.v.push(v);return Object.assign(s,{tEnd:t,vEnd:v,res,tSee:seen,xSee,xEnd:x});}
+function at(t){if(t<=0)return{x:0,v:0};if(t>=SIM.tEnd)return{x:SIM.xEnd,v:0};const A=SIM.t;let lo=0,hi=A.length-1;while(hi-lo>1){const m=(lo+hi)>>1;if(A[m]<=t)lo=m;else hi=m;}
+  const t0=lo?A[lo]:0,f=(t-t0)/((A[hi]-t0)||1);return{x:SIM.x[lo]+(SIM.x[hi]-SIM.x[lo])*f,v:SIM.v[lo]+(SIM.v[hi]-SIM.v[lo])*f};}
+const clock=t=>{const a=BASE+t,h=Math.floor(a/3600),m=Math.floor(a%3600/60),s=Math.floor(a%60);return[h,m,s].map(n=>String(n).padStart(2,'0')).join(':');};
+const visDist=()=>Math.sqrt(8*P.R*P.m);
+const stopDist=v=>v*P.tr+v*v/(2*P.ab);
+
+/* ---------------- Geografía aproximada ---------------- */
+const O={lat:39.468,lon:-3.788};
+const toEN=(lat,lon)=>[(lon-O.lon)*85917,(lat-O.lat)*111132];
+const WP=[[85,39.715,-3.835],[89.536,39.68,-3.83],[99.337,39.61,-3.835],[103.386,39.585,-3.835],[104.823,39.573,-3.833],[111.972,39.51,-3.815],[115.081,39.488,-3.80],[118,39.468,-3.788],[119.747,39.455,-3.782],[124,39.42,-3.775]].map(([pk,la,lo])=>{const[e,n]=toEN(la,lo);return{pk,e,n};});
+function pkEN(pk){for(let i=0;i<WP.length-1;i++){const a=WP[i],b=WP[i+1];if(pk<=b.pk||i===WP.length-2){const f=(pk-a.pk)/(b.pk-a.pk);return[a.e+(b.e-a.e)*f,a.n+(b.n-a.n)*f];}}}
+const TOWNS=[['Mora',39.685,-3.774,1100],['Orgaz',39.647,-3.876,800],['Los Yébenes',39.583,-3.871,1000],['Urda',39.411,-3.716,800],['Consuegra',39.462,-3.607,1300],['Manzaneque',39.632,-3.788,450]].map(([n,la,lo,r])=>{const[e,nn]=toEN(la,lo);return{n,e,nn,r};});
+const N401=[[39.70,-3.90],[39.647,-3.876],[39.60,-3.875],[39.583,-3.871],[39.52,-3.86],[39.45,-3.85],[39.38,-3.84]].map(([a,b])=>toEN(a,b));
+const hsh=(a,b)=>{const s=Math.sin(a*127.1+b*311.7)*43758.5453;return s-Math.floor(s);};
+function relief(e,n){ // relieve aproximado (m sobre la llanura)
+  const mt=Math.max(0,Math.min(1,(-e-9000)/6000))*(380+80*Math.sin(n*0.00045)+50*Math.sin(n*0.0013+e*0.0007));
+  const ye=150*Math.exp(-((e+7000)**2)/(2*3200**2)-((n-12500)**2)/(2*3000**2));
+  const su=420*Math.exp(-((e-9000)**2)/(2*5000**2)-((n+16000)**2)/(2*4200**2));
+  return mt+ye+su+6*Math.sin(e*0.0011+n*0.0007)+4*Math.sin(e*0.0023-n*0.0019);}
+const PAL=[[176,144,106],[158,119,82],[198,176,124],[125,122,76],[135,130,80],[123,138,78],[169,144,98],[189,164,115],[147,113,76]];
+const TYP=['plow','plow','stub','olive','olive','green','vine','stub','plow'];
+function satPixel(e,n,mpp){ // color tipo ortofoto
+  const ang=0.35+0.25*Math.sin(e*0.00007)+0.2*Math.cos(n*0.00006),ca=Math.cos(ang),sa=Math.sin(ang);
+  const u=e*ca+n*sa,w=-e*sa+n*ca;const r=Math.floor(w/210),W=260+hsh(r,7)*420,c=Math.floor((u+hsh(r,3)*W)/W);
+  const k=Math.floor(hsh(r,c)*PAL.length);let [R,G,B]=PAL[k];const ty=TYP[k];
+  const lu=((u+hsh(r,3)*W)%W+W)%W,lw=((w%210)+210)%210;
+  if(ty==='plow'||ty==='stub'){const f=Math.sin(lw*(mpp<6?1.6:0.3))*(mpp<6?10:3);R+=f;G+=f;B+=f;}
+  if(ty==='olive'&&mpp<12){const ox=lu%8,oy=lw%8;if(ox>2&&ox<6&&oy>2&&oy<6){R=62;G=72;B=40;}}
+  if(ty==='vine'&&mpp<8&&lu%3<1){R-=25;G-=15;B-=25;}
+  if(lu<mpp*0.8||lw<mpp*0.8){R-=22;G-=20;B-=18;} // lindes
+  const h=relief(e,n);if(h>70){const a=Math.min(1,(h-70)/160);R=R*(1-a)+80*a;G=G*(1-a)+90*a;B=B*(1-a)+56*a;if(hsh(Math.floor(e/25),Math.floor(n/25))<0.45*a){R-=30;G-=28;B-=20;}}
+  const dx=relief(e+60,n)-relief(e-60,n),dy=relief(e,n+60)-relief(e,n-60);const sh=Math.max(-40,Math.min(40,(-dx*0.7+dy*0.7)*0.9));R+=sh;G+=sh;B+=sh;
+  for(const t of TOWNS){const d=Math.hypot(e-t.e,n-t.nn);if(d<t.r){const bl=hsh(Math.floor(e/14),Math.floor(n/14));const a=1-d/t.r*0.4;
+    const roof=bl<0.55?[178,98,72]:bl<0.8?[214,206,192]:[150,150,145];R=R*(1-a)+roof[0]*a;G=G*(1-a)+roof[1]*a;B=B*(1-a)+roof[2]*a;}}
+  const nz=(hsh(e*0.37,n*0.53)-0.5)*14;return[R+nz,G+nz,B+nz*0.8];}
+function raster(w,h,pxToEN,mpp){const c=document.createElement('canvas');c.width=w;c.height=h;const k=c.getContext('2d'),id=k.createImageData(w,h),d=id.data;
+  for(let y=0;y<h;y++)for(let x=0;x<w;x++){const[e,n]=pxToEN(x+0.5,y+0.5);const[R,G,B]=satPixel(e,n,mpp);const i=(y*w+x)*4;d[i]=R;d[i+1]=G;d[i+2]=B;d[i+3]=255;}
+  k.putImageData(id,0,0);return c;}
+
+/* ---------------- Marco y cajetín ---------------- */
+function frame(svg,num,title,scale,notes){svg.innerHTML='';
+  E('rect',{x:0,y:0,width:1190,height:842,fill:PAPER},svg);
+  E('rect',{x:14,y:14,width:1162,height:814,fill:'none',stroke:INK,'stroke-width':1.6},svg);
+  E('rect',{x:24,y:24,width:1142,height:794,fill:'none',stroke:INK,'stroke-width':0.6},svg);
+  for(let i=0;i<=10;i++){const x=24+i*114.2;T(svg,x+57,21,String(i+1),{s:8,a:'middle',c:GRY,mono:1});}
+  const g=E('g',{},svg);E('rect',{x:746,y:696,width:420,height:122,fill:'#fff',stroke:INK,'stroke-width':1.2},g);
+  [[722,0],[742,0],[762,0],[786,0]].forEach(([y])=>Ln(g,746,y,1166,y,INK,0.6));Ln(g,1056,762,1056,818,INK,0.6);Ln(g,946,786,946,818,INK,0.6);
+  T(g,754,712,'MARÍA JESÚS PUERTA ANGULO',{s:11.5,w:700});T(g,1158,712,'mariajesuspuertaangulo.com',{s:9.5,a:'end',c:'#8a5a00'});
+  T(g,754,736,'Reconstrucción técnica · Alcance AVE 2080 – Iryo 6076 · LAV Madrid–Sevilla PK 118',{s:9.5});
+  T(g,754,756,title,{s:13,w:700});
+  T(g,754,778,'Estado: preliminar · información pública a 29/10/2026',{s:9,c:GRY});
+  T(g,1064,778,'Fecha 29/10/2026',{s:9,mono:1});
+  T(g,754,800,'ESCALA',{s:8,c:GRY});T(g,754,812,scale,{s:10,mono:1});
+  T(g,954,800,'HIPÓTESIS',{s:8,c:GRY});T(g,954,812,'Ver notas',{s:10,mono:1});
+  T(g,1064,800,'LÁMINA',{s:8,c:GRY});T(g,1064,814,num+' / 05',{s:15,w:700,mono:1});
+  const ng=E('g',{},svg);E('rect',{x:34,y:696,width:704,height:122,fill:'#fff',stroke:INK,'stroke-width':0.8},ng);T(ng,42,710,'NOTAS',{s:8.5,w:700});
+  notes.forEach((n,i)=>T(ng,42,726+i*14,(i+1)+'. '+n,{s:9.2}));
+  return svg;}
+function northArrow(g,x,y,s=1){const a=E('g',{transform:`translate(${x},${y}) scale(${s})`},g);E('polygon',{points:'0,-24 8,8 0,2 -8,8',fill:INK},a);E('polygon',{points:'0,-24 0,2 -8,8',fill:PAPER,stroke:INK,'stroke-width':.8},a);T(a,0,22,'N',{a:'middle',s:12,w:700});}
+function scaleBar(g,x,y,pxPerM,meters,label){const w=meters*pxPerM;for(let i=0;i<4;i++)E('rect',{x:x+i*w/4,y,width:w/4,height:5,fill:i%2?PAPER:INK,stroke:INK,'stroke-width':.6},g);
+  [0,meters/2,meters].forEach(m=>T(g,x+m*pxPerM,y+16,m>=1000?fmt(m/1000,m%1000?1:0)+' km':fmt(m)+' m',{s:8.5,a:'middle',mono:1}));if(label)T(g,x,y-5,label,{s:8.5,c:GRY});}
+function railLine(g,pts,w=4){const d='M'+pts.map(p=>p.join(' ')).join('L');E('path',{d,fill:'none',stroke:INK,'stroke-width':w,'stroke-linejoin':'round'},g);E('path',{d,fill:'none',stroke:PAPER,'stroke-width':w-2.2,'stroke-dasharray':'9 9'},g);}
+
+/* ================= L-01 SITUACIÓN ================= */
+const L1={x:34,y:34,w:666,h:652,k:15.5/1000,e0:-21.5e3,n1:30e3};
+let ras1=null;
+function L1px(e,n){return[L1.x+(e-L1.e0)*L1.k,L1.y+(L1.n1-n)*L1.k];}
+function drawL1(){const s=frame($('s1'),'L-01','PLANO DE SITUACIÓN · BASE TIPO SATÉLITE','Gráfica · ≈ 1:250.000 en A3',[
+  'Base de uso del suelo reconstruida (no ortofoto). Sustituir por PNOA máxima actualidad del IGN.',
+  'Trazado esquemático por puntos kilométricos publicados; posiciones aproximadas ±1 km.',
+  'Coordenadas locales en km respecto al PK 118 (≈ 39,468 N · 3,788 O).',
+  'Extensión del tramo sin LZB: 63 km (EFE) o 69 km (elDiario.es); límites exactos no publicados.',
+  'Posiciones de los trenes según el escenario y la hora seleccionados en la barra de control.',
+  'Rumbo de la vía en el PK 118 ≈ 175° (SSE), sentido Madrid → Sevilla.']);
+  if(!ras1)ras1=raster(333,326,(x,y)=>[L1.e0+x*2/L1.k,L1.n1-y*2/L1.k],2/L1.k).toDataURL();
+  E('image',{href:ras1,x:L1.x,y:L1.y,width:L1.w,height:L1.h,preserveAspectRatio:'none'},s);
+  const cl=E('clipPath',{id:'c1'},s);E('rect',{x:L1.x,y:L1.y,width:L1.w,height:L1.h},cl);
+  const g=E('g',{'clip-path':'url(#c1)'},s);
+  for(let e=-20e3;e<=20e3;e+=5e3){const[x]=L1px(e,0);Ln(g,x,L1.y,x,L1.y+L1.h,'rgba(255,255,255,.45)',.6,'3 4');T(g,x+3,L1.y+L1.h-4,fmt(e/1000)+' km E',{s:8,c:'#fff',mono:1});}
+  for(let n=-10e3;n<=30e3;n+=5e3){const[,y]=L1px(0,n);Ln(g,L1.x,y,L1.x+L1.w,y,'rgba(255,255,255,.45)',.6,'3 4');T(g,L1.x+3,y-3,fmt(n/1000)+' km N',{s:8,c:'#fff',mono:1});}
+  E('path',{d:'M'+N401.map(p=>L1px(...p).join(' ')).join('L'),fill:'none',stroke:'#f2e6c8',stroke:'#efe2bd','stroke-width':2.4},g);
+  T(g,...L1px(N401[2][0]-2600,N401[2][1]),'N-401',{s:9,c:'#fff',w:700});
+  const pts=[];for(let pk=85;pk<=124;pk+=0.25)pts.push(L1px(...pkEN(pk)));
+  const halo=[];for(let pk=85;pk<=124;pk+=0.25)halo.push(L1px(...pkEN(pk)));
+  E('path',{d:'M'+halo.map(p=>p.join(' ')).join('L'),fill:'none',stroke:'rgba(208,122,0,.35)','stroke-width':16},g);
+  const st=[];for(let pk=103.386;pk<=111.972;pk+=0.25)st.push(L1px(...pkEN(pk)));E('path',{d:'M'+st.map(p=>p.join(' ')).join('L'),fill:'none',stroke:'rgba(31,95,168,.6)','stroke-width':10},g);
+  railLine(g,pts,4.5);
+  for(let pk=85;pk<=124;pk+=5){const[x,y]=L1px(...pkEN(pk));E('circle',{cx:x,cy:y,r:2.4,fill:INK},g);T(g,x+8,y+3,'PK '+pk,{s:8.5,c:'#fff',mono:1,w:600});}
+  [[89.536,'PAET Mora y Orgaz'],[104.823,'PB Los Yébenes'],[119.747,'PAET Urda']].forEach(([pk,n])=>{const[x,y]=L1px(...pkEN(pk));E('rect',{x:x-4,y:y-4,width:8,height:8,fill:'#fff',stroke:INK},g);T(g,x-10,y+3,n,{s:9,a:'end',c:'#fff',w:700});});
+  TOWNS.forEach(t=>{const[x,y]=L1px(t.e,t.nn);T(g,x,y+3,t.n.toUpperCase(),{s:10,a:'middle',c:'#fff',w:700,extra:{'paint-order':'stroke',stroke:'rgba(0,0,0,.55)','stroke-width':3}});});
+  T(g,...L1px(-17000,6000),'MONTES DE TOLEDO',{s:11,c:'#fff',w:700,a:'middle',extra:{'letter-spacing':'2','paint-order':'stroke',stroke:'rgba(0,0,0,.5)','stroke-width':3}});
+  // trenes
+  const st2=at(T_),aveHead=PK0+st2.x/1000;
+  const [ax,ay]=L1px(...pkEN(Math.min(aveHead,118))),[ix,iy]=L1px(...pkEN(118.1));
+  E('circle',{cx:ix,cy:iy,r:7,fill:IRC,stroke:'#fff','stroke-width':2},g);E('circle',{cx:ax,cy:ay,r:7,fill:AVEC,stroke:'#fff','stroke-width':2},g);
+  const[sx,sy]=L1px(...pkEN(93));E('circle',{cx:sx,cy:sy,r:5,fill:'none',stroke:'#fff','stroke-width':2},g);T(g,sx-10,sy+4,'AVE detenido 08:30–08:36 (PK ≈93)',{s:8.5,a:'end',c:'#fff',w:700});
+  const[px,py]=L1px(0,0);E('path',{d:`M${px} ${py-14}l4 9 10 1-7 7 2 10-9-5-9 5 2-10-7-7 10-1z`,fill:RED,stroke:'#fff','stroke-width':1.5},g);
+  T(g,px+16,py+4,'PK 118 · CHOQUE',{s:10,c:'#fff',w:700,extra:{'paint-order':'stroke',stroke:RED,'stroke-width':3}});
+  E('rect',{x:L1.x,y:L1.y,width:L1.w,height:L1.h,fill:'none',stroke:INK,'stroke-width':1},s);
+  // panel derecho
+  const r=E('g',{},s);T(r,718,52,'LEYENDA',{s:10,w:700});
+  const leg=[[()=>{railLine(r,[[718,72],[770,72]],4.5);},'LAV Madrid–Sevilla (vía doble)'],[()=>E('line',{x1:718,y1:94,x2:770,y2:94,stroke:'rgba(208,122,0,.5)','stroke-width':14},r),'Tramo sin protección LZB (extensión n. p.)'],[()=>E('line',{x1:718,y1:116,x2:770,y2:116,stroke:'rgba(31,95,168,.6)','stroke-width':10},r),'Recta de Los Yébenes · 300 km/h'],[()=>E('circle',{cx:744,cy:138,r:7,fill:AVEC,stroke:'#fff','stroke-width':2},r),'AVE 2080 (posición a la hora elegida)'],[()=>E('circle',{cx:744,cy:160,r:7,fill:IRC,stroke:'#fff','stroke-width':2},r),'Iryo 6076 detenido'],[()=>E('rect',{x:740,y:178,width:8,height:8,fill:'#fff',stroke:INK},r),'Instalación de Adif (PAET / PB)'],[()=>E('line',{x1:718,y1:204,x2:770,y2:204,stroke:'#efe2bd','stroke-width':3},r),'Carretera N-401 (aprox.)']];
+  leg.forEach(([f,t],i)=>{f();T(r,782,76+i*22,t,{s:10});});
+  T(r,718,252,'PUNTOS KILOMÉTRICOS Y VELOCIDAD DE LÍNEA',{s:10,w:700});
+  const rows=[['89,536','PAET Mora y Orgaz','—'],['99,3–103,4','Curvas de gran radio','290'],['103,4–112,0','Recta de Los Yébenes','300'],['104,823','PB Los Yébenes','300'],['112,0–115,1','Transición','290'],['115,1–170,2','Curvas · PK 118 dentro','270'],['118,000','Choque (t. m. Los Yébenes)','270'],['119,747','PAET Urda','270']];
+  E('rect',{x:716,y:260,width:440,height:18+rows.length*18,fill:'#fff',stroke:INK,'stroke-width':.6},r);
+  T(r,724,273,'PK',{s:8.5,c:GRY});T(r,812,273,'ELEMENTO',{s:8.5,c:GRY});T(r,1148,273,'km/h',{s:8.5,c:GRY,a:'end'});
+  rows.forEach((w,i)=>{const y=291+i*18;Ln(r,716,y-13,1156,y-13,'#ddd',.5);T(r,724,y,w[0],{s:9.5,mono:1});T(r,812,y,w[1],{s:9.5,w:w[0]==='118,000'?700:400,c:w[0]==='118,000'?RED:INK});T(r,1148,y,w[2],{s:9.5,mono:1,a:'end'});});
+  northArrow(r,1120,520,1.2);
+  // rosa solar
+  const sx0=800,sy0=522;E('circle',{cx:sx0,cy:sy0,r:50,fill:'#fff',stroke:INK,'stroke-width':.6},r);
+  ['N','E','S','O'].forEach((l,i)=>{const a=i*Math.PI/2;T(r,sx0+Math.sin(a)*60,sy0-Math.cos(a)*60+4,l,{s:9,a:'middle',w:700});});
+  const az=118*Math.PI/180,tr=175*Math.PI/180;Ln(r,sx0,sy0,sx0+Math.sin(tr)*54,sy0-Math.cos(tr)*54,INK,2);T(r,sx0+12,sy0+40,'marcha 175°',{s:8.5});
+  Ln(r,sx0,sy0,sx0+Math.sin(az)*54,sy0-Math.cos(az)*54,ORA,2);E('circle',{cx:sx0+Math.sin(az)*54,cy:sy0-Math.cos(az)*54,r:6,fill:ORA},r);T(r,sx0+Math.sin(az)*54+10,sy0-Math.cos(az)*54+4,'sol 118° · 11,6°',{s:8.5,c:ORA,w:700});
+  T(r,718,450,'SOL A LAS 08:48 (NOAA)',{s:10,w:700});
+  scaleBar(r,900,470,L1.k,10000,'Escala gráfica');
+  T(r,718,600,'DATOS DEL SUCESO',{s:10,w:700});
+  [['Hora del choque','08:48 (Iryo) · 08:54 (112)'],['Trenes','AVE 2080 Madrid→Sevilla · Iryo 6076'],['Viajeros','397 + 147'],['Recorrido tras la orden','≈ 25 km desde 08:36'],['Meteorología (AEMET)','Poco nuboso; nubes bajas matinales']].forEach((w,i)=>{T(r,718,616+i*14,w[0],{s:9.5,c:GRY});T(r,1156,616+i*14,w[1],{s:9.5,a:'end'});});
+}
+
+/* ================= L-02 PLANTA DE DETALLE ================= */
+const L2={x:34,y:34,w:1122,h:652,c0:116000,c1:118600};
+let ras2=null,ras2R=null;
+function trackXY(c){const cs=115081,R=P.R;const k=L2.w/(L2.c1-L2.c0);let u,v;if(c<=cs){u=c-L2.c0;v=0;}else{const th=(c-cs)/R;u=(cs-L2.c0)+R*Math.sin(th);v=R*(1-Math.cos(th));}return{u,v,k};}
+function L2px(u,v){const k=L2.w/(L2.c1-L2.c0);return[L2.x+u*k,L2.y+L2.h-90-v*k];}
+function rawUV(c,off=0){const cs=115081,R=P.R;let u,v,ang;if(c<=cs){u=c;v=0;ang=0;}else{const th=(c-cs)/R;u=cs+R*Math.sin(th);v=R*(1-Math.cos(th));ang=th;}return[u-off*Math.sin(ang),v+off*Math.cos(ang)];}
+function trackPx(c,off=0){const a0=rawUV(L2.c0),a1=rawUV(L2.c1),ang=Math.atan2(a1[1]-a0[1],a1[0]-a0[0]),k=L2.w/Math.hypot(a1[0]-a0[0],a1[1]-a0[1])*0.94;
+  const[u,v]=rawUV(c,off),du=u-a0[0],dv=v-a0[1];const x=du*Math.cos(ang)+dv*Math.sin(ang),y=-du*Math.sin(ang)+dv*Math.cos(ang);
+  return[L2.x+L2.w*0.03+x*k,L2.y+L2.h*0.66-y*k];}
+function drawL2(){const vis=visDist(),V=P.V/3.6,dS=stopDist(V),d40=stopDist(40/3.6);
+  const s=frame($('s2'),'L-02','PLANTA DETALLE PK 116,0–118,6 · VISIBILIDAD','Gráfica · ≈ 1:6.000 en A3',[
+  `Curva hipotética desde el PK 115,081 (inicio de 270 km/h), R = ${fmt(P.R)} m; giro no publicado; lámina girada.`,
+  `Obstáculo lateral interior (talud de desmonte, postes, vegetación) a ${fmt(P.m,1)} m del eje de vía.`,
+  'Visibilidad por cuerda: s = √(8·R·m). Ojo del maquinista y piloto de cola a altura similar (perfil plano).',
+  `Parada: reacción ${fmt(P.tr,1)} s + frenada de emergencia ${fmt(P.ab,2)} m/s² (hipótesis; el fabricante no la publica).`,
+  'Base tipo satélite reconstruida con parcelario manchego; no es ortofoto.',
+  'Las longitudes de los trenes (200 y 202 m) se dibujan a escala.']);
+  const k=L2.w/(L2.c1-L2.c0)*0.94;
+  if(!ras2||ras2R!==P.R){ras2R=P.R;ras2=raster(561,326,(x,y)=>[x*2/k+400,(L2.h-y*2)/k+1200],2/k).toDataURL();}
+  E('image',{href:ras2,x:L2.x,y:L2.y,width:L2.w,height:L2.h,preserveAspectRatio:'none'},s);
+  const cl=E('clipPath',{id:'c2'},s);E('rect',{x:L2.x,y:L2.y,width:L2.w,height:L2.h},cl);const g=E('g',{'clip-path':'url(#c2)'},s);
+  // terraplén y vía
+  const path=(off)=>{const p=[];for(let c=L2.c0;c<=L2.c1;c+=25)p.push(trackPx(c,off));return'M'+p.map(q=>q.join(' ')).join('L');};
+  E('path',{d:path(0),fill:'none',stroke:'#d9c79f','stroke-width':34*k+6,opacity:.95},g);
+  E('path',{d:path(0),fill:'none',stroke:'#8d8984','stroke-width':12*k+3},g);
+  railLine(g,(()=>{const p=[];for(let c=L2.c0;c<=L2.c1;c+=25)p.push(trackPx(c,0));return p;})(),3.5);
+  E('path',{d:path(P.m),fill:'none',stroke:BLUE,'stroke-width':1.2,'stroke-dasharray':'6 4'},g);
+  // zonas de frenado
+  const cIr=118000,cSee=cIr-vis,cBrake=cSee+V*P.tr,cStop=cSee+dS,c40=cSee+d40;
+  const seg=(a,b,col,w,da)=>{const p=[];for(let c=Math.max(L2.c0,a);c<=Math.min(L2.c1,b);c+=10)p.push(trackPx(c,-14));if(p.length>1)E('path',{d:'M'+p.map(q=>q.join(' ')).join('L'),fill:'none',stroke:col,'stroke-width':w,'stroke-linecap':'butt'},g).setAttribute('stroke-dasharray',da||'');};
+  seg(cSee,cBrake,ORA,7);seg(cBrake,Math.min(cStop,cIr),RED,7);if(cStop>cIr)seg(cIr,cStop,RED,7,'4 3');seg(cSee,c40,GRN,7);
+  // visual
+  const[sx,sy]=trackPx(cSee,0),[ix,iy]=trackPx(cIr,0);Ln(g,sx,sy,ix,iy,ORA,1.6,'8 4');
+  const mid=trackPx((cSee+cIr)/2,P.m);E('circle',{cx:mid[0],cy:mid[1],r:3.5,fill:BLUE},g);
+  // PK
+  for(let c=116000;c<=118500;c+=500){const[x,y]=trackPx(c,0),[x2,y2]=trackPx(c,22);Ln(g,x,y,x2,y2,INK,1);if(c%1000===0)T(g,x2,y2-4,'PK '+c/1000,{s:10,mono:1,a:'middle',w:600,extra:{'paint-order':'stroke',stroke:PAPER,'stroke-width':3}});}
+  [[115081,'Inicio 270 km/h · inicio curva (hip.)'],[111972,'']].forEach(([c,t])=>{if(c<L2.c0||!t)return;const[x,y]=trackPx(c,0);Ln(g,x,y-40,x,y+40,BLUE,1.2);T(g,x+4,y+52,t,{s:9,c:BLUE,w:700,extra:{'paint-order':'stroke',stroke:PAPER,'stroke-width':3}});});
+  // trenes
+  const tr=(c0,c1,col)=>{const p=[];for(let c=c0;c<=c1;c+=5)p.push(trackPx(c,0));E('path',{d:'M'+p.map(q=>q.join(' ')).join('L'),fill:'none',stroke:col,'stroke-width':7,'stroke-linecap':'round'},g);};
+  tr(cIr,cIr+202,IRC);const st=at(T_);let aH=PK0*1000+st.x;if(aH>cIr)aH=cIr;tr(Math.max(L2.c0-300,aH-200),aH,AVEC);
+  const[iqx,iqy]=trackPx(cIr+101,0);T(g,iqx,iqy-34,'Iryo 6076 · detenido',{s:10,c:IRC,w:700,a:'middle',extra:{'paint-order':'stroke',stroke:PAPER,'stroke-width':3}});
+  if(aH>L2.c0){const[ax,ay]=trackPx(aH-100,0);T(g,ax,ay-18,'AVE 2080 · '+fmt(st.v*3.6)+' km/h',{s:10,c:AVEC,w:700,a:'middle',extra:{'paint-order':'stroke',stroke:PAPER,'stroke-width':3}});}
+  // cotas
+  const dim=(a,b,off,txt,col)=>{const[x1,y1]=trackPx(a,off),[x2,y2]=trackPx(b,off);Ln(g,x1,y1,x2,y2,col,1);[[x1,y1],[x2,y2]].forEach(([x,y])=>Ln(g,x,y-5,x,y+5,col,1));T(g,(x1+x2)/2,(y1+y2)/2-5,txt,{s:9.5,a:'middle',c:col,w:700,mono:1,extra:{'paint-order':'stroke',stroke:PAPER,'stroke-width':3}});};
+  dim(cSee,cIr,-110,'visibilidad s = '+fmt(vis)+' m',ORA);dim(cSee,cStop,-210,'parada necesaria '+fmt(dS)+' m',RED);
+  E('rect',{x:L2.x,y:L2.y,width:L2.w,height:L2.h,fill:'none',stroke:INK,'stroke-width':1},s);
+  // cuadro resumen
+  const b=E('g',{},s);E('rect',{x:L2.x+14,y:L2.y+14,width:330,height:152,fill:'rgba(255,255,255,.93)',stroke:INK,'stroke-width':.8},b);
+  T(b,L2.x+24,L2.y+32,'BALANCE VISIBILIDAD – FRENADO',{s:10,w:700});
+  [['Velocidad de crucero',fmt(P.V)+' km/h'],['Visibilidad del Iryo (s)',fmt(vis)+' m'],['Recorrido en reacción',fmt(V*P.tr)+' m'],['Distancia de frenado',fmt(V*V/(2*P.ab))+' m'],['Parada necesaria',fmt(dS)+' m'],['Parada a 40 km/h',fmt(d40)+' m'],['Resultado',SIM.res==='impact'?'impacto a '+fmt(SIM.vEnd*3.6)+' km/h':'se detiene antes']].forEach((w,i)=>{T(b,L2.x+24,L2.y+52+i*16,w[0],{s:9.5,c:GRY});T(b,L2.x+334,L2.y+52+i*16,w[1],{s:9.5,a:'end',mono:1,w:i===6?700:400,c:i===6?(SIM.res==='impact'?RED:GRN):INK});});
+  const lg=E('g',{},s);E('rect',{x:L2.x+L2.w-300,y:L2.y+14,width:286,height:112,fill:'rgba(255,255,255,.93)',stroke:INK,'stroke-width':.8},lg);
+  [[ORA,'Recorrido durante la reacción'],[RED,'Frenada de emergencia (discontinuo: más allá del Iryo)'],[GRN,'Parada si hubiera ido a 40 km/h'],[BLUE,'Línea de obstáculo lateral interior']].forEach(([c,t],i)=>{Ln(lg,L2.x+L2.w-290,L2.y+32+i*22,L2.x+L2.w-260,L2.y+32+i*22,c,6);T(lg,L2.x+L2.w-252,L2.y+36+i*22,t,{s:9.2});});
+  northArrow(s,L2.x+L2.w-30,L2.y+L2.h-40,0.8);T(s,L2.x+L2.w-30,L2.y+L2.h-8,'(orientación esquemática)',{s:7.5,a:'middle',c:GRY});
+  scaleBar(s,L2.x+L2.w-200,L2.y+L2.h-30,k,250,'Escala gráfica');
+}
+
+/* ================= L-03 DIAGRAMA DE MARCHA ================= */
+function drawL3(){const s=frame($('s3'),'L-03','DIAGRAMA DE MARCHA Y PERFIL DE VELOCIDADES','Ejes indicados',[
+  'Diagrama espacio-tiempo: posición de la cabeza del AVE y de la cola del Iryo frente a la hora oficial (CET).',
+  'Velocidades máximas de línea según el perfil publicado de la LAV Madrid–Sevilla.',
+  'Bajo BSL sin LZB el máximo era 200 km/h (EFE); con marcha a la vista, 40 km/h.',
+  'Perfil del AVE simulado: arranque 0,4 m/s², crucero del escenario, frenada desde que el Iryo es visible.',
+  'Horas de impacto publicadas: 08:48 (Iryo) y 08:54 (112). Orden de reanudar: 08:36 (ministro).',
+  'Sin datos del registrador jurídico: el perfil real puede diferir.']);
+  // A: espacio-tiempo
+  const a={x:90,y:60,w:1040,h:270},t0=-420,t1=Math.max(1200,SIM.tEnd+60),p0=92,p1=120;
+  const X=t=>a.x+(t-t0)/(t1-t0)*a.w,Y=pk=>a.y+a.h-(pk-p0)/(p1-p0)*a.h;
+  T(s,a.x,a.y-14,'A · DIAGRAMA ESPACIO–TIEMPO',{s:11,w:700});
+  E('rect',{x:X(-360),y:a.y,width:X(t1)-X(-360),height:a.h,fill:'rgba(208,122,0,.08)'},s);T(s,X(-360)+4,a.y+12,'LZB caído (desde ≈08:30)',{s:9,c:ORA});
+  for(let pk=92;pk<=120;pk+=4){Ln(s,a.x,Y(pk),a.x+a.w,Y(pk),'#e3e3dd',.6);T(s,a.x-6,Y(pk)+3,'PK '+pk,{s:9,a:'end',mono:1});}
+  for(let m=-6;m*60<=t1;m+=2){const t=m*60;if(t<t0)continue;Ln(s,X(t),a.y,X(t),a.y+a.h,'#e3e3dd',.6);T(s,X(t),a.y+a.h+14,clock(t).slice(0,5),{s:9,a:'middle',mono:1});}
+  E('rect',{x:a.x,y:a.y,width:a.w,height:a.h,fill:'none',stroke:INK,'stroke-width':.8},s);
+  E('rect',{x:X(-360),y:Y(118.202),width:X(t1)-X(-360),height:Y(118)-Y(118.202)+1,fill:IRC},s);T(s,X(t1)-6,Y(118.2)-5,'Iryo 6076 detenido (PK 118,0–118,2)',{s:9.5,a:'end',c:IRC,w:700});
+  let d=`M${X(-360)} ${Y(PK0)}L${X(0)} ${Y(PK0)}`;for(let i=0;i<SIM.t.length;i+=4)d+=`L${X(SIM.t[i])} ${Y(PK0+SIM.x[i]/1000)}`;d+=`L${X(SIM.tEnd)} ${Y(PK0+SIM.xEnd/1000)}`;
+  E('path',{d,fill:'none',stroke:AVEC,'stroke-width':2.4},s);T(s,X(SIM.tEnd*0.55),Y(PK0+at(SIM.tEnd*0.55).x/1000)-8,'AVE 2080',{s:10,c:AVEC,w:700,a:'end'});
+  [[0,'08:36 orden de reanudar'],[720,'08:48 impacto (Iryo)'],[1080,'08:54 aviso 112']].forEach(([t,l],i)=>{Ln(s,X(t),a.y,X(t),a.y+a.h,INK,1,'4 3');T(s,X(t)+4,a.y+a.h-8-i*13,l,{s:9});});
+  Ln(s,X(T_),a.y,X(T_),a.y+a.h,ORA,1.6);
+  if(SIM.res==='impact'){E('circle',{cx:X(SIM.tEnd),cy:Y(118),r:5,fill:RED},s);}
+  // B: velocidad - PK
+  const b={x:90,y:390,w:1040,h:270},q0=92,q1=120,vmax=320;
+  const XB=pk=>b.x+(pk-q0)/(q1-q0)*b.w,YB=v=>b.y+b.h-v/vmax*b.h;
+  T(s,b.x,b.y-14,'B · VELOCIDAD FRENTE A PUNTO KILOMÉTRICO',{s:11,w:700});
+  for(let v=0;v<=300;v+=50){Ln(s,b.x,YB(v),b.x+b.w,YB(v),'#e3e3dd',.6);T(s,b.x-6,YB(v)+3,v+' km/h',{s:9,a:'end',mono:1});}
+  for(let pk=92;pk<=120;pk+=2){T(s,XB(pk),b.y+b.h+14,String(pk),{s:9,a:'middle',mono:1});}
+  E('rect',{x:b.x,y:b.y,width:b.w,height:b.h,fill:'none',stroke:INK,'stroke-width':.8},s);
+  const lim=[[92,99.337,null],[99.337,103.386,290],[103.386,111.972,300],[111.972,115.081,290],[115.081,120,270]];
+  lim.forEach(([a1,b1,v])=>{if(!v)return;E('line',{x1:XB(a1),y1:YB(v),x2:XB(b1),y2:YB(v),stroke:BLUE,'stroke-width':2.2},s);T(s,(XB(a1)+XB(b1))/2,YB(v)-5,v+' (línea)',{s:9,a:'middle',c:BLUE});});
+  Ln(s,b.x,YB(200),b.x+b.w,YB(200),INK,1.2,'7 4');T(s,b.x+6,YB(200)-5,'200 · máximo bajo BSL',{s:9});
+  Ln(s,b.x,YB(40),b.x+b.w,YB(40),GRN,1.4,'7 4');T(s,b.x+6,YB(40)-5,'40 · marcha a la vista',{s:9,c:GRN});
+  let dv=`M${XB(PK0)} ${YB(0)}`;for(let i=0;i<SIM.x.length;i+=3)dv+=`L${XB(PK0+SIM.x[i]/1000)} ${YB(SIM.v[i]*3.6)}`;dv+=`L${XB(PK0+SIM.xEnd/1000)} ${YB(SIM.vEnd*3.6)}`;
+  E('path',{d:dv,fill:'none',stroke:AVEC,'stroke-width':2.4},s);
+  Ln(s,XB(118),b.y,XB(118),b.y+b.h,IRC,2);T(s,XB(118)+4,b.y+12,'Iryo',{s:9.5,c:IRC,w:700});
+  if(SIM.xSee!==null){Ln(s,XB(PK0+SIM.xSee/1000),b.y,XB(PK0+SIM.xSee/1000),b.y+b.h,ORA,1.2,'3 3');T(s,XB(PK0+SIM.xSee/1000)-4,b.y+24,'Iryo visible',{s:9,a:'end',c:ORA});}
+  const st=at(T_);E('circle',{cx:XB(PK0+st.x/1000),cy:YB(st.v*3.6),r:5,fill:ORA,stroke:'#fff','stroke-width':1.5},s);
+}
+
+/* ================= L-04 SECCIÓN ================= */
+function drawL4(){const s=frame($('s4'),'L-04','SECCIÓN TRANSVERSAL PK 118 · HACIA SEVILLA','1:100 aprox. (cotas en m)',[
+  'Altura de terraplén (5 m) y taludes 2H:1V supuestos; el terraplén está confirmado, sus dimensiones no.',
+  'Entreeje de vía 4,70 m y ancho de vía 1,435 m (estándar de la LAV). Catenaria esquemática.',
+  'Gálibos de fabricante: S-103 2,95 × 3,89 m; S-109 2,924 × 4,08 m. Diferencia de altura 0,19 m.',
+  'Sol a las 08:48: altura 11,6°, azimut 118°. Proyectado sobre este plano: 13,8° desde el lado este.',
+  'Posición de los coches descarrilados: ilustrativa (caída por el lado este del terraplén).',
+  'Vía de circulación del AVE e Iryo: se dibuja la vía 1; la vía real no se ha publicado.']);
+  const k=20,cx=560,gy=560,X=m=>cx+m*k,Y=h=>gy-h*k;
+  // terreno y terraplén
+  E('path',{d:`M34 ${Y(0)}L${X(-17)} ${Y(0)}L${X(-7.5)} ${Y(5)}L${X(7.5)} ${Y(5)}L${X(17)} ${Y(0)}L1156 ${Y(0)}L1156 686L34 686Z`,fill:'#e7dcc4',stroke:INK,'stroke-width':1.4},s);
+  for(let x=40;x<1156;x+=14)Ln(s,x,Y(0)+4,x-8,Y(0)+12,'#b9ab8b',.7);
+  // balasto
+  [-2.35,2.35].forEach(c=>{E('path',{d:`M${X(c-2.9)} ${Y(5)}L${X(c-1.75)} ${Y(5.62)}L${X(c+1.75)} ${Y(5.62)}L${X(c+2.9)} ${Y(5)}Z`,fill:'#b6b2ab',stroke:INK,'stroke-width':.8},s);
+    E('rect',{x:X(c-1.3),y:Y(5.82),width:2.6*k,height:.2*k,fill:'#7f7c77'},s);[-0.7175,0.7175].forEach(r=>E('rect',{x:X(c+r-0.04),y:Y(5.99),width:.08*k,height:.17*k,fill:INK},s));});
+  const RT=5.99;
+  // catenaria
+  [[-6.2,1],[10.9,-1]].forEach(([mx,sgn])=>{E('rect',{x:X(mx)-3,y:Y(RT+8),width:6,height:8.2*k-8,fill:'#9aa1a8',stroke:INK,'stroke-width':.6},s);Ln(s,X(mx),Y(RT+6.8),X(mx+sgn*4),Y(RT+6.8),INK,1.2);});
+  [-2.35,2.35].forEach(c=>{E('circle',{cx:X(c),cy:Y(RT+5.3),r:2.2,fill:INK},s);E('circle',{cx:X(c),cy:Y(RT+6.5),r:1.6,fill:INK},s);});
+  // trenes en sección (vía 1)
+  const car=(c,w,h,col,da)=>{E('path',{d:`M${X(c-w/2+.15)} ${Y(RT+1)}L${X(c-w/2)} ${Y(RT+1.5)}L${X(c-w/2)} ${Y(RT+h-.9)}Q${X(c-w/2)} ${Y(RT+h)} ${X(c-w/2+.6)} ${Y(RT+h)}L${X(c+w/2-.6)} ${Y(RT+h)}Q${X(c+w/2)} ${Y(RT+h)} ${X(c+w/2)} ${Y(RT+h-.9)}L${X(c+w/2)} ${Y(RT+1.5)}L${X(c+w/2-.15)} ${Y(RT+1)}Z`,fill:da?'none':col,'fill-opacity':da?0:.88,stroke:da?col:INK,'stroke-width':da?1.6:1,'stroke-dasharray':da||''},s);};
+  car(-2.35,2.95,3.89,AVEC);car(-2.35,2.924,4.08,IRC,'6 3');
+  [-0.7175,0.7175].forEach(r=>E('circle',{cx:X(-2.35+r),cy:Y(RT+.46),r:.46*k,fill:'#333',stroke:INK},s));
+  // coches descarrilados (ilustrativo)
+  const g2=E('g',{transform:`translate(${X(-11)},${Y(2.6)}) rotate(-27)`},s);E('rect',{x:-1.47*k,y:-3.9*k,width:2.95*k,height:3.9*k,rx:12,fill:IRC,'fill-opacity':.35,stroke:IRC,'stroke-dasharray':'5 3'},g2);
+  const g3=E('g',{transform:`translate(${X(-20)},${Y(1.5)}) rotate(-88)`},s);E('rect',{x:-1.47*k,y:-1.5*k,width:2.95*k,height:3.9*k,rx:12,fill:IRC,'fill-opacity':.35,stroke:IRC,'stroke-dasharray':'5 3'},g3);
+  T(s,X(-17),Y(3.8),'Coches 7 y 8 del Iryo (ilustrativo)',{s:10,c:IRC,a:'middle',w:700});
+  // sol
+  const ang=13.8*Math.PI/180;for(let i=0;i<5;i++){const y0=Y(RT+1+i*0.8);Ln(s,34,y0+Math.tan(ang)*(X(-3.8)-34)*-1+0,X(-3.8),y0,ORA,1,'10 5');}
+  T(s,44,Y(RT+5.6),'Rayos solares 08:48 · 13,8° en sección (11,6° real)',{s:10,c:ORA,w:700});
+  const sh=(3.89)/Math.tan(ang);E('path',{d:`M${X(-0.87)} ${Y(5)}L${X(7.5)} ${Y(5)}L${X(Math.min(17,7.5+(sh-8.37)*0.8))} ${Y(Math.max(0,5-(sh-8.37)*0.4))}`,fill:'none',stroke:'rgba(0,0,0,.35)','stroke-width':6},s);
+  T(s,X(9),Y(4.4),'Sombra arrojada ≈ '+fmt(sh,1)+' m',{s:9.5,c:'#555'});
+  // cotas
+  const dimH=(a,b,y,t)=>{Ln(s,X(a),Y(y),X(b),Y(y),INK,.8);[a,b].forEach(m=>Ln(s,X(m),Y(y)-5,X(m),Y(y)+5,INK,.8));T(s,(X(a)+X(b))/2,Y(y)-5,t,{s:9.5,a:'middle',mono:1});};
+  const dimV=(x,a,b,t,al='start')=>{Ln(s,X(x),Y(a),X(x),Y(b),INK,.8);[a,b].forEach(h=>Ln(s,X(x)-5,Y(h),X(x)+5,Y(h),INK,.8));T(s,X(x)+(al==='end'?-6:6),(Y(a)+Y(b))/2+3,t,{s:9.5,a:al,mono:1});};
+  dimH(-2.35,2.35,RT+7.6,'4,70 entreejes');dimH(-7.5,7.5,4.2,'15,00 plataforma');dimH(-17,17,-0.9,'34,00 base de terraplén (supuesta)');
+  dimV(19,0,5,'5,00 terraplén (supuesto)');dimV(-4.6,RT,RT+3.89,'3,89 S-103','end');dimV(-0.2,RT,RT+4.08,'4,08 S-109');dimV(13.5,RT,RT+5.3,'5,30 hilo de contacto');
+  T(s,X(-2.35),Y(RT+4.6),'Vía 1',{s:10,a:'middle',w:700});T(s,X(2.35),Y(RT+4.6),'Vía 2',{s:10,a:'middle',w:700});
+  T(s,60,60,'ESTE (lado del sol) ←',{s:11,w:700});T(s,1130,60,'→ OESTE · Montes de Toledo',{s:11,w:700,a:'end'});
+  E('rect',{x:700,y:84,width:440,height:96,fill:'#fff',stroke:INK,'stroke-width':.6},s);T(s,710,102,'COMPARATIVA DE TESTEROS (FABRICANTE)',{s:10,w:700});
+  [['','S-103 Velaro E','S-109 FR1000'],['Anchura','2,950 m','2,924 m'],['Altura','3,89 m','4,08 m'],['Masa','425 t','500 t']].forEach((r,i)=>{T(s,710,120+i*15,r[0],{s:9.5,c:GRY});T(s,940,120+i*15,r[1],{s:9.5,mono:1,a:'end',c:AVEC});T(s,1130,120+i*15,r[2],{s:9.5,mono:1,a:'end',c:IRC});});
+}
+
+/* ================= L-05 VISIBILIDAD Y SOL ================= */
+function drawL5(){const vis=visDist(),V=P.V/3.6,dS=stopDist(V);
+  const s=frame($('s5'),'L-05','VISIBILIDAD Y SOL DESDE LA CABINA','Esquemas sin escala',[
+  'Construcción de la visibilidad en curva: flecha m de la cuerda s en un arco de radio R → s ≈ √(8·R·m).',
+  `Escenario actual: R = ${fmt(P.R)} m, m = ${fmt(P.m,1)} m → s = ${fmt(vis)} m; parada necesaria ${fmt(dS)} m.`,
+  'Posición solar NOAA para 39,47 N 3,79 O, 28/10/2026, hora oficial CET (UTC+1).',
+  'Cono de deslumbramiento de referencia: ±20° respecto a la línea de visión. El sol queda a ≈57° a la izquierda.',
+  'Predicción AEMET: poco nuboso con nubes bajas matinales; sin nieblas previstas en Toledo. Visibilidad observada no publicada.',
+  'Con ±20° de error en el rumbo, el ángulo al sol varía entre ≈37° y ≈77°.']);
+  // A: construcción geométrica
+  T(s,50,60,'A · CONSTRUCCIÓN GEOMÉTRICA',{s:11,w:700});
+  const ox=330,oy=600,rr=420,th=0.6;
+  E('path',{d:`M${ox-rr*Math.sin(th)} ${oy-rr*Math.cos(th)}A${rr} ${rr} 0 0 1 ${ox+rr*Math.sin(th)} ${oy-rr*Math.cos(th)}`,fill:'none',stroke:INK,'stroke-width':3},s);
+  const ch=rr*Math.cos(th);Ln(s,ox-rr*Math.sin(th),oy-ch,ox+rr*Math.sin(th),oy-ch,ORA,2,'8 4');
+  Ln(s,ox,oy-rr,ox,oy-ch,BLUE,2);T(s,ox+8,oy-(rr+ch)/2,'m',{s:14,c:BLUE,w:700});
+  E('circle',{cx:ox,cy:oy-rr,r:4,fill:BLUE},s);T(s,ox,oy-rr-10,'obstáculo (talud / poste)',{s:10,a:'middle',c:BLUE});
+  T(s,ox,oy-ch+18,'s (línea de visión)',{s:12,a:'middle',c:ORA,w:700});
+  Ln(s,ox,oy-ch,ox,oy-70,GRY,.8,'3 3');T(s,ox+6,oy-90,'R',{s:13,c:GRY,w:700});
+  E('rect',{x:ox-rr*Math.sin(th)-12,y:oy-ch-6,width:24,height:12,fill:AVEC},s);T(s,ox-rr*Math.sin(th),oy-ch+26,'cabina AVE',{s:10,a:'middle',c:AVEC,w:700});
+  E('rect',{x:ox+rr*Math.sin(th)-12,y:oy-ch-6,width:24,height:12,fill:IRC},s);T(s,ox+rr*Math.sin(th),oy-ch+26,'cola Iryo',{s:10,a:'middle',c:IRC,w:700});
+  T(s,ox,110,'s ≈ √(8 · R · m)',{s:18,a:'middle',mono:1,w:600});
+  T(s,ox,134,`= √(8 · ${fmt(P.R)} · ${fmt(P.m,1)}) = ${fmt(vis)} m`,{s:13,a:'middle',mono:1,c:ORA});
+  // tabla
+  const tx=640,ty=70;T(s,tx,ty-10,'B · VISIBILIDAD s (m) SEGÚN RADIO Y OBSTÁCULO',{s:11,w:700});
+  const Rs=[3000,4200,6000,9000],Ms=[3,5,8,12,20,30];E('rect',{x:tx,y:ty,width:500,height:20+Ms.length*20,fill:'#fff',stroke:INK,'stroke-width':.6},s);
+  T(s,tx+8,ty+14,'m \\ R',{s:9,c:GRY});Rs.forEach((r,j)=>T(s,tx+170+j*100,ty+14,fmt(r),{s:9.5,a:'end',mono:1,w:700}));
+  Ms.forEach((m,i)=>{const y=ty+34+i*20;Ln(s,tx,y-14,tx+500,y-14,'#ddd',.5);T(s,tx+8,y,m+' m',{s:9.5,mono:1});Rs.forEach((r,j)=>{const v=Math.sqrt(8*r*m);T(s,tx+170+j*100,y,fmt(v),{s:9.5,a:'end',mono:1,c:v>=dS?GRN:RED,w:v>=dS?700:400});});});
+  T(s,tx,ty+Ms.length*20+40,`Verde: suficiente para detener el AVE a ${fmt(P.V)} km/h (${fmt(dS)} m). Rojo: insuficiente.`,{s:9.5});
+  T(s,tx,ty+Ms.length*20+56,`A 40 km/h bastaban ${fmt(stopDist(40/3.6))} m: cualquier combinación de la tabla habría permitido parar.`,{s:9.5,c:GRN});
+  // C: sol en planta de cabina
+  const cx=760,cy=520,r=120;T(s,640,370,'C · SOL RESPECTO A LA LÍNEA DE VISIÓN (08:48)',{s:11,w:700});
+  E('circle',{cx,cy,r,fill:'#fff',stroke:INK,'stroke-width':.8},s);E('circle',{cx,cy,r:r*0.5,fill:'none',stroke:'#ddd'},s);
+  const rel=-57*Math.PI/180;
+  E('path',{d:`M${cx} ${cy}L${cx+Math.sin(-20*Math.PI/180)*r} ${cy-Math.cos(20*Math.PI/180)*r}A${r} ${r} 0 0 1 ${cx+Math.sin(20*Math.PI/180)*r} ${cy-Math.cos(20*Math.PI/180)*r}Z`,fill:'rgba(179,38,30,.12)',stroke:RED,'stroke-width':.8},s);
+  T(s,cx,cy-r-8,'línea de visión · rumbo 175°',{s:9.5,a:'middle',w:700});T(s,cx+Math.sin(25*Math.PI/180)*r*0.7,cy-r*0.55,'cono ±20°',{s:9,c:RED});
+  Ln(s,cx,cy,cx,cy-r,INK,2);Ln(s,cx,cy,cx+Math.sin(rel)*r,cy-Math.cos(rel)*r,ORA,2.4);
+  E('circle',{cx:cx+Math.sin(rel)*r,cy:cy-Math.cos(rel)*r,r:9,fill:ORA},s);T(s,cx+Math.sin(rel)*r-14,cy-Math.cos(rel)*r+4,'sol 57° izda.',{s:10,a:'end',c:ORA,w:700});
+  E('rect',{x:cx-8,y:cy-14,width:16,height:28,fill:AVEC,rx:3},s);
+  // D: altura solar
+  const bx=940,by=640,bw=210,bh=160;T(s,930,370,'D · ALTURA DEL SOL',{s:11,w:700});
+  Ln(s,bx,by,bx+bw,by,INK,1);const e=11.6*Math.PI/180;Ln(s,bx,by,bx+bw,by-Math.tan(e)*bw,ORA,2.4);E('circle',{cx:bx+bw,cy:by-Math.tan(e)*bw,r:8,fill:ORA},s);
+  E('path',{d:`M${bx+60} ${by}A60 60 0 0 0 ${bx+60*Math.cos(e)} ${by-60*Math.sin(e)}`,fill:'none',stroke:INK},s);T(s,bx+68,by-6,'11,6°',{s:10,mono:1});
+  [['Alba civil','07:12'],['Salida del sol','07:39'],['08:36 orden','9,5° · az 116°'],['08:48 impacto','11,6° · az 118°'],['Sombra/altura','× 4,9']].forEach((w,i)=>{T(s,930,400+i*16,w[0],{s:9.5,c:GRY});T(s,1150,400+i*16,w[1],{s:9.5,a:'end',mono:1});});
+  T(s,930,by+24,'Contraluz: la cola del Iryo, de espaldas al sol,',{s:9.5});T(s,930,by+38,'se veía en sombra propia sobre fondo iluminado.',{s:9.5});
+}
+
+/* ---------------- Control ---------------- */
+let T_=708,playing=false;
+function sync(){$('oR').textContent=fmt(P.R)+' m';$('oM').textContent=fmt(P.m,1)+' m';$('oTr').textContent=fmt(P.tr,1)+' s';$('oA').textContent=fmt(P.ab,2)+' m/s²';$('oT').textContent=clock(T_);
+  const V=P.V/3.6;$('kV').textContent=fmt(P.V)+' km/h';$('kS').textContent=fmt(P.S)+' m';$('kD').textContent=fmt(stopDist(V))+' m';
+  $('kI').textContent=SIM.res==='impact'?fmt(SIM.vEnd*3.6)+' km/h · '+clock(SIM.tEnd).slice(0,5):'no hay choque';
+  const st=at(T_);$('kP').textContent='PK '+fmt(PK0+st.x/1000,3)+' · '+fmt(st.v*3.6)+' km/h';}
+function full(){P.S=Math.min(2000,visDist());SIM=simulate();$('tt').max=Math.ceil(SIM.tEnd+60);T_=Math.min(T_,+$('tt').max);sync();drawL1();drawL2();drawL3();drawL4();drawL5();}
+function timeOnly(){sync();drawL1();drawL2();drawL3();}
+$('tt').oninput=e=>{T_=+e.target.value;timeOnly();};
+[['pR','R'],['pM','m'],['pTr','tr'],['pA','ab']].forEach(([id,k])=>$(id).oninput=e=>{P[k]=+e.target.value;full();});
+document.querySelectorAll('[data-preset]').forEach(b=>b.onclick=()=>{P.V=PRE[b.dataset.preset]();document.querySelectorAll('[data-preset]').forEach(x=>x.setAttribute('aria-pressed',x===b));full();T_=Math.max(-360,SIM.tEnd-10);$('tt').value=T_;timeOnly();});
+let last=0;function loop(now){if(playing){const dt=Math.min(.1,(now-last)/1000);T_+=dt*30;if(T_>=+$('tt').max){T_=+$('tt').max;playing=false;$('play').textContent='Reproducir';}$('tt').value=T_;timeOnly();}last=now;requestAnimationFrame(loop);}
+$('play').onclick=()=>{playing=!playing;if(playing&&T_>=+$('tt').max-1)T_=-360;$('play').textContent=playing?'Pausa':'Reproducir';};
+P.V=PRE.a();full();T_=Math.max(-360,SIM.tEnd-10);$('tt').value=T_;timeOnly();requestAnimationFrame(t=>{last=t;loop(t);});
+})();
+</script>

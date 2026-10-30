@@ -1,0 +1,612 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Urda en tiempo real</title>
+<meta name="description" content="Reconstrucción interactiva del alcance AVE 2080 – Iryo 6076 en el PK 118,8 de la LAV Madrid–Sevilla, con datos en vivo.">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<style>
+:root{--bg:#f4f6f8;--card:#fff;--ink:#14202b;--mut:#5a6772;--line:#d6dde3;--acc:#0f3a5f;--acc2:#1f6fb2;--ave:#6b2fa0;--iry:#c0123f;--ok:#1e8e4e;--bad:#c62828;--warn:#b36b00;--soft:#eaf0f5;--shadow:0 1px 3px rgba(10,30,50,.12)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0d141b;--card:#15202a;--ink:#e6edf3;--mut:#9aa9b6;--line:#2a3946;--acc:#8cc4f0;--acc2:#5aa6e6;--ave:#b98af0;--iry:#ff5a82;--ok:#4cd07f;--bad:#ff6b6b;--warn:#f0b04a;--soft:#1b2a37;--shadow:0 1px 3px rgba(0,0,0,.5)}}
+:root[data-theme="dark"]{--bg:#0d141b;--card:#15202a;--ink:#e6edf3;--mut:#9aa9b6;--line:#2a3946;--acc:#8cc4f0;--acc2:#5aa6e6;--ave:#b98af0;--iry:#ff5a82;--ok:#4cd07f;--bad:#ff6b6b;--warn:#f0b04a;--soft:#1b2a37;--shadow:0 1px 3px rgba(0,0,0,.5)}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;overflow-x:hidden}
+a{color:var(--acc2)}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+header.top{background:linear-gradient(135deg,#0a2540,#12456f 60%,#0f3a5f);color:#fff;padding:16px 16px 12px}
+.wrap{max-width:1640px;margin:0 auto;padding:0 16px}
+header.top .wrap{padding:0}
+.eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;opacity:.8}
+h1{margin:4px 0 4px;font-size:clamp(20px,3.2vw,34px);line-height:1.15;font-weight:700}
+.sub{opacity:.88;max-width:1000px;font-size:14px}
+.toprow{display:flex;gap:12px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap}
+.tbtn{background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.35);border-radius:8px;padding:6px 12px;font:inherit;font-size:13px;cursor:pointer;text-decoration:none;display:inline-block}
+.tbtn:hover{background:rgba(255,255,255,.25)}
+.hero{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-top:12px}
+.hero div{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:10px;padding:8px 10px}
+.hero b{display:block;font-size:20px;line-height:1.1}
+.hero span{font-size:11.5px;opacity:.85}
+.notice{background:#fff7e0;color:#3d2e00;border-left:5px solid #d08c00;margin:12px 0;padding:10px 14px;border-radius:6px;font-size:13.5px}
+:root[data-theme="dark"] .notice{background:#2d2410;color:#f3dfa6}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .notice{background:#2d2410;color:#f3dfa6}}
+.status{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.chip{display:inline-flex;align-items:center;gap:6px;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:3px 10px 3px 8px;font-size:12px;box-shadow:var(--shadow);cursor:help}
+.dot{width:10px;height:10px;border-radius:50%;background:#9aa;flex:none}
+.dot.ok{background:var(--ok)}.dot.bad{background:var(--bad)}.dot.pend{background:#9aa;animation:pul 1s infinite}.dot.warn{background:var(--warn)}
+@keyframes pul{50%{opacity:.35}}
+.bar{position:static;top:0;z-index:900;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:8px 10px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;box-shadow:var(--shadow);margin:8px 0}
+.clock{font:700 28px/1 ui-monospace,Consolas,monospace;letter-spacing:.04em;color:var(--acc);min-width:128px}
+.clock small{display:block;font-size:10.5px;font-weight:400;color:var(--mut);letter-spacing:.04em}
+button,select,input{font:inherit}
+.btn{background:var(--soft);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:6px 11px;cursor:pointer;font-size:13px}
+.btn:hover{border-color:var(--acc2)}
+.btn.on{background:var(--acc);color:var(--card);border-color:var(--acc)}
+.btn.play{background:var(--acc2);color:#fff;border-color:var(--acc2);min-width:84px;font-weight:600}
+#tl{flex:1 1 220px;min-width:140px;accent-color:var(--acc2)}
+.grid{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:14px;align-items:start}
+@media (min-width:700px){.bar{position:sticky}}
+@media (max-width:1050px){.grid{grid-template-columns:minmax(0,1fr)}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);padding:12px}
+.card h3{margin:0 0 8px;font-size:14px;letter-spacing:.02em}
+#map{height:clamp(380px,60vh,680px);border-radius:12px;border:1px solid var(--line);z-index:1}
+.charts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:14px}
+@media (max-width:700px){.charts{grid-template-columns:minmax(0,1fr)}}
+.charts canvas{width:100%;height:230px;display:block}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px}
+.kpi{background:var(--soft);border-radius:10px;padding:7px 9px;border:1px solid var(--line)}
+.kpi span{display:block;font-size:11px;color:var(--mut);text-transform:uppercase;letter-spacing:.05em}
+.kpi b{font:700 19px/1.2 ui-monospace,Consolas,monospace}
+.kpi small{display:block;color:var(--mut);font-size:11px}
+.kpi.ave b{color:var(--ave)}.kpi.iry b{color:var(--iry)}.kpi.alert{border-color:var(--bad)}.kpi.alert b{color:var(--bad)}
+.tabs{display:flex;gap:4px;overflow-x:auto;border-bottom:1px solid var(--line);margin:12px 0 10px;padding-bottom:0;scrollbar-width:thin}
+.tabs button{background:none;border:0;border-bottom:3px solid transparent;padding:8px 10px;color:var(--mut);cursor:pointer;white-space:nowrap;font-size:13.5px}
+.tabs button.on{color:var(--acc);border-bottom-color:var(--acc2);font-weight:600}
+.pane{display:none}.pane.on{display:block}
+.row{display:grid;grid-template-columns:130px 1fr 66px;gap:8px;align-items:center;margin:5px 0;font-size:13px}
+.row input[type=range]{width:100%;accent-color:var(--acc2)}
+.row output{font:12.5px ui-monospace,Consolas,monospace;text-align:right}
+.hyp{display:inline-block;background:var(--soft);border:1px solid var(--line);border-radius:4px;padding:0 4px;font-size:10px;color:var(--warn);margin-left:3px}
+table{border-collapse:collapse;width:100%;font-size:12.5px}
+th,td{border-bottom:1px solid var(--line);padding:5px 6px;text-align:left;vertical-align:top}
+th{color:var(--mut);font-weight:600;font-size:11.5px}
+.tw{overflow-x:auto}
+ul.chrono{list-style:none;margin:0;padding:0;max-height:430px;overflow:auto}
+ul.chrono li{display:grid;grid-template-columns:64px 1fr;gap:8px;padding:6px 8px;border-left:4px solid var(--line);margin:3px 0;border-radius:4px;font-size:13px;opacity:.5;transition:.2s}
+ul.chrono li.past{opacity:.95;border-left-color:var(--acc2)}
+ul.chrono li.now{opacity:1;border-left-color:var(--iry);background:var(--soft);box-shadow:0 0 0 1px var(--iry) inset}
+ul.chrono li time{font:600 12.5px ui-monospace,Consolas,monospace}
+.src{display:block;color:var(--mut);font-size:11.5px}
+.tag{font-size:10.5px;border-radius:4px;padding:0 5px;border:1px solid var(--line);color:var(--mut);margin-left:4px}
+.tag.lo{color:var(--warn);border-color:var(--warn)}
+.lay{display:grid;grid-template-columns:1fr 100px;gap:6px;align-items:center;margin:4px 0;font-size:13px}
+.lay label{display:flex;align-items:center;gap:6px}
+.lay input[type=range]{accent-color:var(--acc2);width:100%}
+.lg{font-size:11.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--mut);margin:12px 0 4px}
+.gal{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px}
+.gal a{display:block;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--soft);text-decoration:none;color:var(--ink)}
+.gal img{width:100%;height:140px;object-fit:cover;display:block}
+.gal span{display:block;padding:6px 8px;font-size:12px}
+iframe#f3d{width:100%;height:min(78vh,720px);border:1px solid var(--line);border-radius:10px;background:#000}
+.leaflet-tooltip.trtip{font:600 12px system-ui;border:0;box-shadow:0 1px 4px rgba(0,0,0,.4)}
+.imp{width:60px;height:60px;border-radius:50%;border:3px solid #ff2d55;animation:imp 1.4s ease-out infinite;margin:-30px 0 0 -30px}
+@keyframes imp{0%{transform:scale(.3);opacity:1}100%{transform:scale(2.2);opacity:0}}
+.sig{width:10px;height:10px;border-radius:50%;border:2px solid #fff;margin:-5px 0 0 -5px;box-shadow:0 0 0 1px #000}
+.banner{display:none;position:absolute;left:50%;top:12px;transform:translateX(-50%);z-index:800;background:#b3123e;color:#fff;border-radius:8px;padding:8px 16px;font-weight:700;box-shadow:0 4px 14px rgba(0,0,0,.5);text-align:center}
+.mapwrap{position:relative}
+.cta{background:linear-gradient(135deg,#0a2540,#12456f);color:#fff;margin-top:26px;padding:34px 16px 26px}
+.cta h2{margin:0 0 6px;font-size:clamp(22px,3vw,32px)}
+.cta .btn{background:#fff;color:#0a2540;font-weight:700;border-color:#fff;text-decoration:none;display:inline-block;padding:10px 20px;margin-top:10px}
+.cta small{display:block;opacity:.85;max-width:1000px;margin-top:14px;line-height:1.5}
+.cta a{color:#bfe0ff}
+.dial{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.legend span{display:inline-block;margin-right:12px;font-size:12px}
+.legend i{display:inline-block;width:18px;height:4px;vertical-align:middle;margin-right:4px;border-radius:2px}
+.small{font-size:12px;color:var(--mut)}
+.pill{display:inline-block;border-radius:999px;padding:1px 9px;font-size:12px;font-weight:600}
+.pill.ok{background:rgba(30,142,78,.15);color:var(--ok)}.pill.bad{background:rgba(198,40,40,.15);color:var(--bad)}.pill.warn{background:rgba(179,107,0,.15);color:var(--warn)}
+</style>
+</head>
+<body>
+<header class="top">
+ <div class="wrap">
+  <div class="toprow">
+   <div>
+    <div class="eyebrow">Reconstrucción técnica · LAV Madrid–Sevilla · PK 118,8 · 28-oct-2026</div>
+    <h1>Alcance AVE 2080 – Iryo 6076 en Urda, en tiempo real</h1>
+    <div class="sub">Simulación sobre el trazado real, con conexión en vivo a servidores del IGN, Catastro, OpenStreetMap, Open-Meteo y EUMETSAT. Hipótesis editables.</div>
+   </div>
+   <div><button class="tbtn" id="theme" type="button">Modo claro / oscuro</button> <a class="tbtn" href="#cta">Dictamen pericial</a></div>
+  </div>
+  <div class="hero">
+   <div><b>69</b><span>fallecidos (balance provisional, 30-oct)</span></div>
+   <div><b>PK 118,8</b><span>vía 2, ante la señal E242</span></div>
+   <div><b>08:53</b><span>hora del alcance (AITAT)</span></div>
+   <div><b>160–200</b><span>km/h estimados al impacto</span></div>
+   <div><b>~63 km</b><span>sin LZB; circulación en BSL</span></div>
+  </div>
+ </div>
+</header>
+
+<main class="wrap">
+ <div class="notice"><b>Aviso.</b> Esta es una reconstrucción con información pública a 30-oct-2026 e hipótesis editables. Detrás de estas cifras hay 69 personas fallecidas y cientos de heridos. La herramienta no sustituye al dictamen pericial con acceso a los registradores jurídicos, a los registros del LZB y a las grabaciones del Centro de Control.</div>
+
+ <div class="card" style="padding:8px 10px">
+  <h3 style="margin:0 0 4px">Estado de los servidores en vivo <button class="btn" id="recheck" type="button" style="margin-left:8px;padding:2px 8px;font-size:12px">Comprobar de nuevo</button></h3>
+  <div class="status" id="status"></div>
+  <div class="small" id="statusmsg"></div>
+ </div>
+
+ <div class="bar" id="bar">
+  <div class="clock" id="clock">08:28:00<small>hora peninsular (CET)</small></div>
+  <button class="btn play" id="play" type="button">Reproducir</button>
+  <span id="speeds"></span>
+  <input type="range" id="tl" min="0" max="1620" step="1" value="0" aria-label="Hora de la simulación">
+  <span id="jumps"></span>
+ </div>
+
+ <div class="grid">
+  <section>
+   <div class="mapwrap"><div id="map"></div><div class="banner" id="banner"></div></div>
+   <div class="legend small" style="margin-top:6px">
+    <span><i style="background:#6b2fa0"></i>AVE 2080 (Renfe S-103, 200 m)</span>
+    <span><i style="background:#c0123f"></i>Iryo 6076 (ETR1000, 202 m)</span>
+    <span><i style="background:#e08a00"></i>Tramo sin LZB (hipótesis visual)</span>
+    <span><i style="background:#2aa7a0"></i>Vías OSM en vivo</span>
+    <span>Señales y hitos: OSM</span>
+   </div>
+   <div class="charts">
+    <div class="card"><h3>Distancia–tiempo (PK frente a hora)</h3><canvas id="c1"></canvas></div>
+    <div class="card"><h3>Velocidad–distancia del AVE</h3><canvas id="c2"></canvas></div>
+    <div class="card"><h3>Velocidad–tiempo</h3><canvas id="c3"></canvas></div>
+    <div class="card"><h3>Perfil longitudinal del terreno (PK 113–123)</h3><canvas id="c4"></canvas></div>
+   </div>
+  </section>
+
+  <aside>
+   <div class="kpis" id="kpis"></div>
+   <div class="tabs" id="tabs"></div>
+
+   <div class="pane on" id="p-sim">
+    <div class="card">
+     <h3>Escenarios</h3>
+     <div id="scen" style="display:flex;flex-wrap:wrap;gap:6px"></div>
+     <p class="small" id="scendesc"></p>
+     <h3 style="margin-top:12px">Hipótesis editables</h3>
+     <div id="ctrls"></div>
+     <div style="margin:8px 0"><button class="btn" id="btnsight" type="button">Visibilidad por curva (R del eje OSM)</button> <button class="btn" id="reset" type="button">Restablecer escenario</button></div>
+     <div class="small" id="simsum"></div>
+    </div>
+   </div>
+
+   <div class="pane" id="p-lay"><div class="card" id="layui"></div></div>
+
+   <div class="pane" id="p-chr"><div class="card"><h3>Cronología (se ilumina con el reloj)</h3><ul class="chrono" id="chrono"></ul><p class="small">Las etiquetas «dudoso» marcan datos con una sola fuente o fuentes discrepantes. Detalle y enlaces en INVESTIGACION.md.</p></div></div>
+
+   <div class="pane" id="p-tim"><div class="card"><h3>Tabla de tiempos incompatibles</h3><div class="tw" id="timtab"></div><p class="small" id="timnote"></p></div></div>
+
+   <div class="pane" id="p-env">
+    <div class="card"><h3>Sol y deslumbramiento (SunCalc, hora del reloj)</h3><div class="dial" id="sun"></div></div>
+    <div class="card" style="margin-top:10px"><h3>Meteorología del 28-oct-2026 en Urda (Open-Meteo)</h3><div class="tw" id="wx">Cargando…</div></div>
+    <div class="card" style="margin-top:10px"><h3>Trazado y rasante</h3><div id="geo" class="small"></div></div>
+   </div>
+
+   <div class="pane" id="p-sat">
+    <div class="card">
+     <h3>Satélite y nubes</h3>
+     <p class="small">Sentinel-2 (10 m) del 22-oct y 29-oct. Con ese píxel no se ven los trenes. <b>Indicio débil</b>: pérdida local de NDVI junto a la vía entre el PK 118,5 y el 118,8 y una mancha oscura hacia el PK 119,4 (UTM 429293, 4363850). Pueden ser accesos de emergencia o maquinaria; no es prueba.</p>
+     <div id="satbtns" style="display:flex;flex-wrap:wrap;gap:6px"></div>
+     <p class="small" style="margin-top:8px">Meteosat (EUMETSAT) a las 07:50 UTC (08:50 CET) del 28-oct, tres minutos antes del alcance: se ve en capas regionales; en el interior peninsular no hay nubosidad extensa.</p>
+     <a href="img/S-01_SENTINEL2_ANTES_DESPUES_PK118.png" target="_blank" rel="noopener"><img src="img/thumb_S-01.jpg" alt="Sentinel-2 antes y después" style="width:100%;border-radius:8px;border:1px solid var(--line)"></a>
+    </div>
+   </div>
+
+   <div class="pane" id="p-topo">
+    <div class="card"><h3>Topografía y satélite (MDT05 del IGN, PNOA, Sentinel-2)</h3>
+     <p class="small">Terraplén de +6 a +8,5 m en el PK 117,5–118,5, curvas de nivel cada 1 m, pendientes y talud con la PNOA a 25 cm. Pulsa para abrir la imagen completa.</p>
+     <div class="gal" id="gal"></div></div>
+   </div>
+
+   <div class="pane" id="p-3d"><div class="card"><h3>Visor 3D y análisis cinemático/energético</h3><p class="small">Se abre al elegir la pestaña. <a href="urda3d.html" target="_blank" rel="noopener">Abrir en ventana aparte</a>.</p><iframe id="f3d" title="Visor 3D" loading="lazy"></iframe></div></div>
+
+   <div class="pane" id="p-doc"><div class="card"><h3>Documentos y láminas</h3><ul id="docs"></ul></div></div>
+  </aside>
+ </div>
+</main>
+
+<section class="cta" id="cta">
+ <div class="wrap">
+
+  <div style="font-size:18px">María Jesús Puerta Angulo · Ingeniera de Minas (Col. NE-347C)</div>
+  <a class="btn" href="https://www.mariajesuspuertaangulo.com" target="_blank" rel="noopener">www.mariajesuspuertaangulo.com</a>
+  <small>Graduada en Ingeniería de Recursos Naturales y Energéticos · Graduada en Administración y Gestión Inmobiliaria · Máster en Ingeniería y Gestión Ambiental · Máster en Arquitectura y Bioconstrucción · Máster en Prevención de Riesgos Laborales · Máster en IA aplicada a Ingeniería y Arquitectura · Informes periciales</small>
+  <small>Fuentes: AITAT (nota informativa), elDiario.es, El Español, El Diario de Madrid, El Independiente, Wikipedia, comunicado de Iryo; OpenStreetMap (ODbL; trazado, hitos y señales); IGN (PNOA, MDT05, IDEE), Catastro INSPIRE, Open-Meteo, EUMETSAT (EUMETView), Copernicus Sentinel-2 (ESA), OpenRailwayMap, EOX. Datos provisionales sujetos a revisión oficial. Reconstrucción con información pública e hipótesis editables; no sustituye al dictamen con los registradores jurídicos y los registros LZB.</small>
+ </div>
+</section>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/suncalc/1.9.0/suncalc.min.js"></script>
+<script>
+const DATA={"chain":[[39.90128,-3.880935,63.4075,null],[39.900762,-3.8807,63.4684,null],[39.899315,-3.879997,63.6399,null],[39.898265,-3.879458,63.7652,null],[39.896646,-3.878505,63.9625,null],[39.89513,-3.877618,64.1471,null],[39.893533,-3.87667,64.342,null],[39.892207,-3.875884,64.5038,null],[39.890204,-3.874689,64.7485,null],[39.888555,-3.873699,64.9502,null],[39.887506,-3.873071,65.0784,null],[39.885914,-3.872159,65.2715,null],[39.883528,-3.870722,65.5635,null],[39.881048,-3.86928,65.8651,null],[39.880154,-3.868834,65.9714,null],[39.879177,-3.868334,66.088,null],[39.878188,-3.867905,66.2037,null],[39.877649,-3.86771,66.2658,null],[39.876791,-3.867394,66.3648,null],[39.875853,-3.867054,66.4729,null],[39.873575,-3.866433,66.7313,null],[39.871842,-3.866087,66.9259,null],[39.870084,-3.865843,67.1221,null],[39.86655,-3.865376,67.5165,null],[39.865479,-3.865214,67.6361,null],[39.864408,-3.865008,67.7563,null],[39.862673,-3.864591,67.9521,null],[39.861526,-3.864336,68.0813,null],[39.859855,-3.863895,68.2705,null],[39.858099,-3.863404,68.47,null],[39.857038,-3.863178,68.5893,null],[39.855955,-3.862996,68.7105,null],[39.854339,-3.862837,68.8903,null],[39.852995,-3.862755,69.0398,null],[39.851328,-3.862716,69.2248,null],[39.848987,-3.862772,69.4847,null],[39.846646,-3.862813,69.7445,null],[39.843,-3.862932,70.1493,null],[39.839842,-3.862967,70.4998,null],[39.838417,-3.862928,70.6581,null],[39.83702,-3.862831,70.8134,null],[39.835844,-3.862703,70.9444,null],[39.83435,-3.862457,71.1115,null],[39.833452,-3.862269,71.2125,null],[39.832198,-3.861941,71.3545,null],[39.830927,-3.861571,71.499,null],[39.830006,-3.861258,71.6047,null],[39.828543,-3.86067,71.7747,null],[39.827184,-3.860047,71.9347,null],[39.826089,-3.859511,72.0646,null],[39.8247,-3.858752,72.2319,null],[39.823489,-3.858031,72.3798,null],[39.82202,-3.857178,72.5585,null],[39.819794,-3.855874,72.8296,null],[39.814348,-3.852711,73.4919,null],[39.811847,-3.851233,73.797,null],[39.810266,-3.850215,73.9929,null],[39.809327,-3.849551,74.1116,null],[39.808349,-3.8488,74.2378,null],[39.807429,-3.848052,74.3583,null],[39.806258,-3.847018,74.5156,null],[39.805047,-3.845895,74.6809,null],[39.803871,-3.844793,74.8419,null],[39.802736,-3.843725,74.9975,null],[39.800437,-3.841788,75.3018,null],[39.799329,-3.840966,75.4435,null],[39.798553,-3.84042,75.5416,null],[39.797502,-3.839737,75.672,null],[39.796428,-3.8391,75.8031,null],[39.7954,-3.838542,75.9268,null],[39.794308,-3.837995,76.0568,null],[39.792941,-3.837394,76.2169,null],[39.79176,-3.836922,76.3541,null],[39.791033,-3.836667,76.4377,null],[39.790027,-3.836351,76.5526,null],[39.789458,-3.836194,76.6172,null],[39.788411,-3.835915,76.7358,null],[39.787443,-3.835708,76.8448,null],[39.785596,-3.835362,77.0519,null],[39.783031,-3.834919,77.3391,null],[39.781852,-3.834674,77.4717,null],[39.780706,-3.83439,77.6012,null],[39.779576,-3.834058,77.7298,null],[39.778434,-3.833682,77.8605,null],[39.777484,-3.833323,77.9704,null],[39.776585,-3.832947,78.0753,null],[39.775553,-3.832473,78.1967,null],[39.77473,-3.832071,78.2943,null],[39.773914,-3.831632,78.3924,null],[39.773108,-3.831179,78.4899,null],[39.772305,-3.830695,78.5882,null],[39.771264,-3.830009,78.7179,null],[39.770322,-3.829345,78.8369,null],[39.7695,-3.828719,78.9427,null],[39.768651,-3.828044,79.0533,null],[39.767434,-3.827047,79.2131,null],[39.766178,-3.82598,79.3798,null],[39.765216,-3.825179,79.5067,null],[39.764233,-3.82436,79.6364,null],[39.763198,-3.823515,79.7721,null],[39.762092,-3.822627,79.9165,null],[39.761139,-3.821932,80.0379,null],[39.760111,-3.82123,80.1669,null],[39.759061,-3.820568,80.2965,null],[39.757981,-3.819977,80.4267,null],[39.756908,-3.819393,80.5558,null],[39.755903,-3.818901,80.675,null],[39.755037,-3.818515,80.7767,null],[39.754044,-3.81813,80.8917,null],[39.752931,-3.817739,81.0198,null],[39.751796,-3.81739,81.1492,null],[39.75065,-3.817076,81.2793,null],[39.7495,-3.816778,81.4095,null],[39.746454,-3.816009,81.7538,null],[39.74424,-3.815451,82.0041,null],[39.74252,-3.815023,82.1986,null],[39.740784,-3.814582,82.3949,null],[39.738801,-3.814071,82.6193,null],[39.735528,-3.813246,82.9895,null],[39.733803,-3.812804,83.1847,null],[39.731498,-3.812213,83.4454,null],[39.72736,-3.811177,83.9132,null],[39.722946,-3.81006,84.4124,null],[39.719805,-3.809266,84.7676,null],[39.718069,-3.808826,84.9639,null],[39.716195,-3.808344,85.176,null],[39.715992,-3.808293,85.1989,null],[39.71529,-3.808112,85.2784,null],[39.714349,-3.80789,85.3845,null],[39.710851,-3.807024,85.7798,null],[39.709397,-3.806663,85.9442,null],[39.705488,-3.805911,86.3828,null],[39.703971,-3.80563,86.5529,null],[39.702456,-3.80533,86.7229,null],[39.700768,-3.804993,86.9125,null],[39.699128,-3.804694,87.0963,null],[39.698637,-3.804604,87.1514,null],[39.695041,-3.803875,87.5554,null],[39.693995,-3.803677,87.6727,null],[39.693464,-3.8036,87.7321,null],[39.692367,-3.803407,87.8549,null],[39.690933,-3.803136,88.0158,null],[39.690769,-3.803107,88.0341,null],[39.689784,-3.802938,88.1444,null],[39.687972,-3.802607,88.3475,null],[39.687691,-3.802554,88.379,null],[39.687307,-3.80248,88.4222,null],[39.683251,-3.801719,88.877,null],[39.679904,-3.801091,89.2524,null],[39.679375,-3.800997,89.3116,null],[39.678166,-3.800764,89.4473,null],[39.677118,-3.800567,89.5648,null],[39.676929,-3.800531,89.586,null],[39.674661,-3.8001,89.8405,null],[39.672697,-3.799748,90.0605,null],[39.670954,-3.799504,90.2551,null],[39.669963,-3.799386,90.3656,null],[39.668486,-3.799327,90.5296,null],[39.667051,-3.799327,90.6889,null],[39.666011,-3.799376,90.8044,null],[39.665372,-3.799424,90.8754,null],[39.66455,-3.799486,90.9668,null],[39.663053,-3.799645,91.1335,null],[39.646287,-3.801329,93.0,null],[39.643377,-3.801627,93.3732,null],[39.642529,-3.801695,93.4818,null],[39.641123,-3.801742,93.6617,null],[39.640633,-3.801743,93.7243,null],[39.640175,-3.801745,93.7829,null],[39.639192,-3.801732,93.9086,null],[39.63896,-3.801717,93.9383,null],[39.637437,-3.801596,94.1334,null],[39.636277,-3.801486,94.2821,null],[39.634538,-3.801141,94.507,null],[39.633991,-3.801011,94.5782,null],[39.633477,-3.80089,94.6449,null],[39.632441,-3.800606,94.7804,null],[39.63226,-3.800543,94.8043,null],[39.631187,-3.800185,94.9461,null],[39.630072,-3.79977,95.0944,null],[39.628945,-3.799339,95.2447,null],[39.626762,-3.798389,95.5392,null],[39.624684,-3.797462,95.8202,null],[39.623302,-3.796929,96.0045,null],[39.621598,-3.796355,96.2297,null],[39.620454,-3.796052,96.3791,null],[39.619292,-3.795796,96.5297,null],[39.618142,-3.795593,96.6782,null],[39.617066,-3.795434,96.8167,null],[39.615118,-3.795273,97.0662,null],[39.613465,-3.795257,97.2776,null],[39.612214,-3.795307,97.4376,null],[39.611081,-3.795384,97.5827,null],[39.609953,-3.795517,97.7275,null],[39.608902,-3.79568,97.8628,null],[39.608325,-3.795802,97.9377,null],[39.607228,-3.796046,98.0799,null],[39.606146,-3.796323,98.221,null],[39.605223,-3.796604,98.3422,null],[39.604275,-3.796937,98.4678,null],[39.603124,-3.797369,98.621,null],[39.602014,-3.797853,98.7709,null],[39.600912,-3.798341,98.9199,null],[39.599841,-3.798905,99.0676,null],[39.59875,-3.799523,99.2199,null],[39.597934,-3.800058,99.337,null],[39.576275,-3.814002,102.0008,null],[39.574841,-3.814901,102.1762,null],[39.573769,-3.81551,102.3052,null],[39.572959,-3.815919,102.4009,null],[39.57213,-3.816307,102.4979,null],[39.570768,-3.816904,102.6563,null],[39.569394,-3.817418,102.8137,null],[39.56816,-3.817812,102.9536,null],[39.566957,-3.818134,103.0889,null],[39.565836,-3.818415,103.2146,null],[39.564294,-3.818699,103.386,null],[39.56095,-3.819206,103.7485,null],[39.552055,-3.820596,104.713,null],[39.548001,-3.821204,105.1523,null],[39.543271,-3.821922,105.665,null],[39.538603,-3.822641,106.171,null],[39.534067,-3.823338,106.6628,null],[39.532203,-3.823629,106.8649,null],[39.531878,-3.823679,106.9002,null],[39.527542,-3.824356,107.3703,null],[39.522893,-3.825056,107.8742,null],[39.51168,-3.826776,109.0896,null],[39.505447,-3.827733,109.7653,null],[39.497231,-3.828981,110.6558,null],[39.490183,-3.830076,111.42,null],[39.488745,-3.8303,111.5759,null],[39.485091,-3.830859,111.972,null],[39.483472,-3.831087,112.1688,null],[39.481877,-3.831231,112.3618,null],[39.480049,-3.831295,112.5827,null],[39.477786,-3.831211,112.8561,null],[39.476039,-3.831002,113.068,749],[39.474297,-3.83068,113.2806,750],[39.472407,-3.830214,113.5129,751],[39.471912,-3.830074,113.5742,751],[39.471333,-3.82991,113.6457,752],[39.470199,-3.829522,113.7874,753],[39.469095,-3.829079,113.927,753],[39.46744,-3.828345,114.1384,754],[39.466996,-3.82811,114.1964,755],[39.466459,-3.827827,114.2665,756],[39.466011,-3.82759,114.325,756],[39.465183,-3.827142,114.4333,757],[39.464227,-3.826554,114.5613,758],[39.463857,-3.826323,114.611,758],[39.463358,-3.825993,114.6786,760],[39.461038,-3.824311,115.0,764],[39.458682,-3.822543,115.081,767],[39.456546,-3.82098,115.3927,771],[39.455458,-3.820249,115.5484,772],[39.454349,-3.819578,115.7038,774],[39.453381,-3.819042,115.8376,775],[39.452192,-3.818431,116.0,777],[39.450083,-3.817534,116.2364,780],[39.448784,-3.817065,116.38,782],[39.447662,-3.816698,116.5031,783],[39.446243,-3.816321,116.6573,784],[39.444181,-3.815889,116.8797,785],[39.44306,-3.815692,117.0,783],[39.441788,-3.815566,117.1497,786],[39.440492,-3.8155,117.3017,786],[39.438994,-3.81548,117.4774,786],[39.437703,-3.815547,117.6289,786],[39.436538,-3.815653,117.7657,786],[39.434553,-3.815936,118.0,785],[39.433584,-3.816147,118.107,786],[39.432417,-3.816413,118.2362,786],[39.431629,-3.816643,118.3242,783],[39.431517,-3.816676,118.3367,784],[39.430753,-3.816898,118.4219,784],[39.430607,-3.816947,118.4384,784],[39.429739,-3.817257,118.5365,786],[39.428105,-3.817908,118.7228,786],[39.425691,-3.818942,119.0,786],[39.423264,-3.819983,119.2091,786],[39.417025,-3.822683,120.0,786],[39.415285,-3.823416,120.1786,786],[39.414055,-3.823939,120.305,786],[39.4126,-3.824557,120.4544,786],[39.410977,-3.825256,120.6213,786],[39.4073,-3.826857,121.0,785],[39.404297,-3.82812,121.3506,786],[39.400597,-3.829737,121.7842,786],[39.399221,-3.83043,121.9481,787],[39.397365,-3.831493,122.1736,789],[39.396406,-3.832107,122.2924,789],[39.395559,-3.832689,122.3989,790],[39.393968,-3.833862,122.6024,792],[39.393125,-3.834506,122.7111,793],[39.391686,-3.83561,122.897,794],[39.388422,-3.838121,123.3189,797],[39.386805,-3.839359,123.5276,798],[39.377959,-3.846143,124.6701,null],[39.375918,-3.847714,124.934,null],[39.373349,-3.849678,125.2655,null],[39.37121,-3.851307,125.5412,null],[39.366524,-3.854915,126.1471,null],[39.362719,-3.85768,126.632,null],[39.351769,-3.864417,127.9788,null],[39.340732,-3.871134,129.3336,null],[39.334653,-3.874824,130.0795,null],[39.332421,-3.876175,130.3532,null],[39.330948,-3.877066,130.5339,null],[39.329286,-3.878032,130.7362,null],[39.328295,-3.878626,130.8576,null],[39.326619,-3.879668,131.0641,null],[39.323974,-3.881301,131.3897,null],[39.322591,-3.882058,131.5565,null],[39.321893,-3.882413,131.6398,null],[39.321204,-3.882722,131.7208,null],[39.320254,-3.883143,131.8322,null],[39.318827,-3.883709,131.9979,null],[39.317771,-3.884074,132.1193,null],[39.316859,-3.884372,132.2237,null],[39.315694,-3.884658,132.3554,null],[39.314574,-3.884876,132.4811,null],[39.313537,-3.885073,132.5975,null],[39.312311,-3.885273,132.7345,null],[39.311262,-3.885382,132.8514,null],[39.310122,-3.885442,132.978,null],[39.308617,-3.885464,133.1451,null],[39.307439,-3.885414,133.2759,null],[39.306272,-3.885322,133.4057,null],[39.305128,-3.885197,133.5331,null],[39.303808,-3.884991,133.6806,null],[39.302333,-3.884661,133.8468,null],[39.300969,-3.884289,134.0016,null],[39.299422,-3.883779,134.1787,null],[39.297991,-3.883254,134.3439,null],[39.296568,-3.882708,134.5088,null],[39.29486,-3.882048,134.7066,null],[39.29377,-3.881641,134.8326,null],[39.29187,-3.881003,135.0505,null],[39.290726,-3.88069,135.1803,null],[39.289665,-3.880442,135.3,null],[39.288468,-3.880206,135.4344,null],[39.287072,-3.880026,135.5901,null],[39.285543,-3.879893,135.7602,null],[39.284054,-3.879863,135.9254,null],[39.282618,-3.879915,136.0849,null],[39.281391,-3.879988,136.2212,null],[39.280244,-3.880116,136.349,null],[39.278947,-3.880292,136.4937,null],[39.277442,-3.880613,136.6631,null],[39.275399,-3.881162,136.8947,null],[39.273744,-3.88171,137.0844,null],[39.272328,-3.882198,137.2471,null],[39.270931,-3.882678,137.4075,null],[39.269094,-3.883201,137.6163,null],[39.267661,-3.883526,137.7778,null],[39.266503,-3.883744,137.9077,null],[39.265054,-3.883932,138.0694,null],[39.263664,-3.884048,138.224,null],[39.262234,-3.884104,138.3827,null],[39.260747,-3.88407,138.5478,null],[39.259391,-3.88398,138.6985,null],[39.257904,-3.883766,138.8645,null],[39.256475,-3.883462,139.0253,null],[39.254955,-3.883106,139.1967,null],[39.25361,-3.882711,139.3498,null],[39.252226,-3.882225,139.5091,null],[39.250783,-3.881638,139.677,null],[39.249118,-3.880927,139.8718,null],[39.24728,-3.880164,140.0862,null],[39.245787,-3.879612,140.2586,null],[39.244576,-3.879179,140.3981,null],[39.243454,-3.878828,140.5262,null],[39.242283,-3.878536,140.6586,null],[39.241412,-3.878308,140.7572,null],[39.240732,-3.878187,140.8334,null],[39.240024,-3.878051,140.9129,null],[39.238995,-3.877896,141.0279,null],[39.238414,-3.877836,141.0925,null],[39.238052,-3.877797,141.1328,null],[39.237469,-3.877732,141.1978,null],[39.236424,-3.877609,141.3142,null],[39.235665,-3.877518,141.3989,null],[39.234132,-3.877293,141.5701,null],[39.231874,-3.87682,141.824,null],[39.230822,-3.876602,141.9422,null],[39.229888,-3.8763,142.0492,null],[39.228839,-3.875936,142.1698,null],[39.227719,-3.875505,142.2995,null],[39.226614,-3.875016,142.4292,null],[39.225595,-3.874522,142.55,null],[39.224604,-3.873999,142.6689,null],[39.223975,-3.873638,142.7454,null],[39.22338,-3.873276,142.8184,null],[39.222336,-3.872617,142.9475,null],[39.221364,-3.871965,143.0692,null],[39.220367,-3.871266,143.1953,null],[39.219343,-3.870521,143.3258,null],[39.217805,-3.869399,143.5221,null],[39.21678,-3.8687,143.6509,null],[39.215886,-3.868153,143.7607,null],[39.215027,-3.867636,143.866,null],[39.214036,-3.867085,143.9858,null],[39.21294,-3.866547,144.116,null],[39.211271,-3.865823,144.3115,null],[39.209095,-3.864944,144.5646,null],[39.199831,-3.861315,145.6395,null],[39.198279,-3.860694,145.8199,null],[39.196594,-3.860038,146.0153,null],[39.194366,-3.859165,146.2739,null],[39.193233,-3.858752,146.4045,null],[39.192275,-3.85842,146.5146,null],[39.191355,-3.85814,146.6195,null],[39.190296,-3.857848,146.7397,null],[39.188559,-3.857487,146.935,null],[39.187406,-3.857304,147.0639,null],[39.186242,-3.857172,147.1937,null],[39.184576,-3.857051,147.3788,null],[39.183265,-3.857039,147.5244,null],[39.181975,-3.857068,147.6675,null],[39.180537,-3.857193,147.8275,null],[39.179173,-3.857367,147.9796,null],[39.178061,-3.857561,148.1041,null],[39.176907,-3.857816,148.2342,null],[39.17505,-3.858289,148.4442,null],[39.17327,-3.858781,148.6463,null],[39.170804,-3.859466,148.9263,null],[39.166387,-3.860688,149.4278,null],[39.156357,-3.863471,150.5665,null],[39.154615,-3.864017,150.7656,null],[39.153132,-3.864574,150.9371,null],[39.152185,-3.864984,151.0479,null],[39.151239,-3.865412,151.1593,null],[39.150373,-3.865848,151.2625,null],[39.147797,-3.86724,151.5727,null],[39.145466,-3.868448,151.8517,null],[39.144425,-3.868951,151.9751,null],[39.142934,-3.86962,152.1503,null],[39.137099,-3.872059,152.8314,null],[39.129912,-3.875045,153.6698,null],[39.125175,-3.876998,154.2219,null],[39.122356,-3.878174,154.5508,null],[39.112115,-3.88244,155.7457,null],[39.109325,-3.883601,156.0713,null],[39.10045,-3.887291,157.1065,null],[39.09556,-3.889323,157.6771,null],[39.089532,-3.891845,158.3808,null],[39.083599,-3.894344,159.0737,null],[39.082222,-3.895001,159.2367,null],[39.081232,-3.895529,159.3557,null],[39.079946,-3.89623,159.5108,null],[39.07844,-3.897128,159.6951,null],[39.075841,-3.898835,160.0192,null],[39.073417,-3.900502,160.3244,null],[39.071584,-3.901659,160.5511,null],[39.070268,-3.902432,160.7118,null],[39.068904,-3.903164,160.8759,null],[39.06663,-3.904362,161.1487,null],[39.06154,-3.907021,161.7586,null]],"chainN":[[39.599821,-3.798852],[39.600907,-3.798286],[39.602,-3.797796],[39.603118,-3.797312],[39.604257,-3.79687],[39.605203,-3.796551],[39.606138,-3.796249],[39.60722,-3.795988],[39.608345,-3.795728],[39.608908,-3.795606],[39.609961,-3.795466],[39.611071,-3.795332],[39.612222,-3.795223],[39.613461,-3.795201],[39.615124,-3.795205],[39.617071,-3.79537],[39.618132,-3.795533],[39.619305,-3.795734],[39.620455,-3.79599],[39.621629,-3.796316],[39.623308,-3.796876],[39.624697,-3.797414],[39.62678,-3.798341],[39.62896,-3.799291],[39.630071,-3.799727],[39.631202,-3.800141],[39.632269,-3.800499],[39.564296,-3.818648],[39.565848,-3.818359],[39.566948,-3.818093],[39.568159,-3.817767],[39.569375,-3.817372],[39.570742,-3.81684],[39.572101,-3.816262],[39.57294,-3.815874],[39.573745,-3.815447],[39.574823,-3.814836],[39.576243,-3.813964],[39.597906,-3.800013],[39.598734,-3.799466],[39.599821,-3.798852],[39.532211,-3.823562],[39.534063,-3.823278],[39.538588,-3.822582],[39.543266,-3.821868],[39.547994,-3.821153],[39.552037,-3.82053],[39.560947,-3.819153],[39.564296,-3.818648],[39.531914,-3.823608],[39.532211,-3.823562],[39.485081,-3.83081],[39.488745,-3.830252],[39.490189,-3.830027],[39.497237,-3.828928],[39.505441,-3.827678],[39.511655,-3.826711],[39.522882,-3.825],[39.527531,-3.824279],[39.531914,-3.823608],[39.472446,-3.830155],[39.474288,-3.830629],[39.476035,-3.830938],[39.47779,-3.83114],[39.48004,-3.831222],[39.481882,-3.831192],[39.48347,-3.831029],[39.485081,-3.83081],[39.471934,-3.830017],[39.472446,-3.830155],[39.466962,-3.828025],[39.467459,-3.828265],[39.4691,-3.829026],[39.470214,-3.829464],[39.471332,-3.829851],[39.471934,-3.830017],[39.466458,-3.82776],[39.466962,-3.828025],[39.464203,-3.826479],[39.465185,-3.82708],[39.466022,-3.82754],[39.466458,-3.82776],[39.463837,-3.826245],[39.464203,-3.826479],[39.45871,-3.822488],[39.461061,-3.824262],[39.463364,-3.825932],[39.463837,-3.826245],[39.431639,-3.816592],[39.43242,-3.816366],[39.433573,-3.816089],[39.434549,-3.815883],[39.436525,-3.815598],[39.437702,-3.815478],[39.438982,-3.815415],[39.440476,-3.815424],[39.441791,-3.815498],[39.443075,-3.81563],[39.44418,-3.815821],[39.446256,-3.816259],[39.447669,-3.816633],[39.448793,-3.816994],[39.450085,-3.817481],[39.45221,-3.818382],[39.453391,-3.818983],[39.454344,-3.819526],[39.455474,-3.820215],[39.45656,-3.820917],[39.45871,-3.822488],[39.431507,-3.81663],[39.431639,-3.816592],[39.430746,-3.816851],[39.431507,-3.81663],[39.430603,-3.816898],[39.430746,-3.816851],[39.06153,-3.906957],[39.066617,-3.904319],[39.068891,-3.903124],[39.070254,-3.902383],[39.071572,-3.901609],[39.073378,-3.900468],[39.075833,-3.898788],[39.078428,-3.897084],[39.079936,-3.896177],[39.081206,-3.895493],[39.082212,-3.894959],[39.083592,-3.894302],[39.089506,-3.89179],[39.095553,-3.889273],[39.098073,-3.888208],[39.099493,-3.887648],[39.100438,-3.887253],[39.109316,-3.883551],[39.112094,-3.882391],[39.122349,-3.878128],[39.123355,-3.877713],[39.125159,-3.876951],[39.129892,-3.874991],[39.137088,-3.872005],[39.142929,-3.869563],[39.144427,-3.868899],[39.145457,-3.868407],[39.147779,-3.867198],[39.150356,-3.865784],[39.151234,-3.86537],[39.152178,-3.864934],[39.153119,-3.864531],[39.154607,-3.86397],[39.156346,-3.863417],[39.166375,-3.860638],[39.170803,-3.85942],[39.173263,-3.858728],[39.175046,-3.858239],[39.176902,-3.85776],[39.178056,-3.857513],[39.179156,-3.857316],[39.180531,-3.857142],[39.181974,-3.85702],[39.183254,-3.856983],[39.184574,-3.856999],[39.186245,-3.857106],[39.187404,-3.857244],[39.18857,-3.857428],[39.190304,-3.857796],[39.19136,-3.858087],[39.192276,-3.858364],[39.193247,-3.858699],[39.194375,-3.859105],[39.196597,-3.859985],[39.198294,-3.86065],[39.199843,-3.861266],[39.209104,-3.864891],[39.211275,-3.865767],[39.212954,-3.8665],[39.214058,-3.867041],[39.21505,-3.867593],[39.215899,-3.868104],[39.216785,-3.868659],[39.217826,-3.869354],[39.219354,-3.870462],[39.220385,-3.871211],[39.221387,-3.871911],[39.222352,-3.872576],[39.223404,-3.873234],[39.223991,-3.873593],[39.22461,-3.873942],[39.225609,-3.874485],[39.226623,-3.874962],[39.227728,-3.875447],[39.228839,-3.875874],[39.229891,-3.876249],[39.230805,-3.87652],[39.231886,-3.876731],[39.234116,-3.87723],[39.235657,-3.87746],[39.236427,-3.877556],[39.23745,-3.877676],[39.238054,-3.877742],[39.238416,-3.877786],[39.239973,-3.877998],[39.240728,-3.878131],[39.241421,-3.878258],[39.242287,-3.878475],[39.24346,-3.878769],[39.244573,-3.879126],[39.245807,-3.879556],[39.247295,-3.880112],[39.249131,-3.880871],[39.25078,-3.88157],[39.25226,-3.88218],[39.253622,-3.882661],[39.254972,-3.883064],[39.256481,-3.883406],[39.257905,-3.8837],[39.259393,-3.883908],[39.260727,-3.884014],[39.262241,-3.884048],[39.263649,-3.883995],[39.265052,-3.88388],[39.266493,-3.883675],[39.26766,-3.883461],[39.269078,-3.883136],[39.270915,-3.882608],[39.272309,-3.882137],[39.273732,-3.881661],[39.275394,-3.881098],[39.277426,-3.880548],[39.27894,-3.880248],[39.280235,-3.88006],[39.2814,-3.879924],[39.282625,-3.879842],[39.284058,-3.879797],[39.285529,-3.879821],[39.287075,-3.879953],[39.288475,-3.880127],[39.28968,-3.880386],[39.290738,-3.88063],[39.291886,-3.880934],[39.29378,-3.881578],[39.294866,-3.881979],[39.296577,-3.88265],[39.298007,-3.883197],[39.299425,-3.883728],[39.300982,-3.884234],[39.302348,-3.884604],[39.303807,-3.884929],[39.305108,-3.88513],[39.306267,-3.885282],[39.307443,-3.885365],[39.308618,-3.885407],[39.310122,-3.885385],[39.311256,-3.885325],[39.312295,-3.885223],[39.313518,-3.885027],[39.314575,-3.884827],[39.315694,-3.884603],[39.316843,-3.884331],[39.317767,-3.884023],[39.318818,-3.883661],[39.320253,-3.883086],[39.32119,-3.882674],[39.321876,-3.882358],[39.322583,-3.882011],[39.323957,-3.881238],[39.326592,-3.879615],[39.328262,-3.878588],[39.329263,-3.877994],[39.330936,-3.877015],[39.332401,-3.876124],[39.334628,-3.874756],[39.340716,-3.871071],[39.351751,-3.864365],[39.3627,-3.857641],[39.366498,-3.854871],[39.371197,-3.851264],[39.373326,-3.849648],[39.375902,-3.847674],[39.377943,-3.846094],[39.382232,-3.842803],[39.386788,-3.839307],[39.388407,-3.838074],[39.391661,-3.835569],[39.393115,-3.83444],[39.393942,-3.833819],[39.395544,-3.832641],[39.396392,-3.832054],[39.397349,-3.831442],[39.399211,-3.830382],[39.400585,-3.829692],[39.404298,-3.828062],[39.407389,-3.826729],[39.410964,-3.825209],[39.412586,-3.82452],[39.415274,-3.823358],[39.417002,-3.822629],[39.423251,-3.819938],[39.425668,-3.818899],[39.428093,-3.817857],[39.429731,-3.817202],[39.430603,-3.816898]],"pts":[{"lat":39.4169422,"lon":-3.8226527,"tipo":"milestone","ref":"120.0","lzb":false,"dist":null,"main":false,"distant":false,"pk":120.004,"off":5.3},{"lat":39.4125861,"lon":-3.8245195,"tipo":"switch","ref":null,"lzb":false,"dist":null,"main":false,"distant":false,"pk":120.513,"off":3.5},{"lat":39.4232515,"lon":-3.8199384,"tipo":"switch","ref":null,"lzb":false,"dist":null,"main":false,"distant":false,"pk":119.267,"off":4.1},{"lat":39.4140547,"lon":-3.8239389,"tipo":"switch","ref":null,"lzb":false,"dist":null,"main":false,"distant":false,"pk":120.343,"off":0.0},{"lat":39.4147969,"lon":-3.8236953,"tipo":"buffer_stop","ref":null,"lzb":false,"dist":null,"main":false,"distant":false,"pk":120.258,"off":5.9},{"lat":39.4152743,"lon":-3.8233579,"tipo":"switch","ref":null,"lzb":false,"dist":null,"main":false,"distant":false,"pk":120.199,"off":5.1},{"lat":39.415285,"lon":-3.8234163,"tipo":"switch","ref":null,"lzb":false,"dist":null,"main":false,"distant":false,"pk":120.199,"off":0.0},{"lat":39.4162857,"lon":-3.8230582,"tipo":"switch","ref":null,"lzb":false,"dist":null,"main":false,"distant":false,"pk":120.084,"off":5.2},{"lat":39.4170252,"lon":-3.822683,"tipo":"milestone","ref":"120.0","lzb":false,"dist":null,"main":false,"distant":false,"pk":119.996,"off":0.0},{"lat":39.422047,"lon":-3.820387,"tipo":"switch","ref":null,"lzb":false,"dist":null,"main":false,"distant":false,"pk":119.405,"off":10.0},{"lat":39.4221063,"lon":-3.8205575,"tipo":"switch","ref":null,"lzb":false,"dist":null,"main":false,"distant":false,"pk":119.404,"off":6.0},{"lat":39.4232639,"lon":-3.8199827,"tipo":"switch","ref":null,"lzb":false,"dist":null,"main":false,"distant":false,"pk":119.267,"off":0.0},{"lat":39.4232722,"lon":-3.8198411,"tipo":"buffer_stop","ref":null,"lzb":false,"dist":null,"main":false,"distant":false,"pk":119.262,"off":11.3},{"lat":39.4241628,"lon":-3.8196739,"tipo":"buffer_stop","ref":null,"lzb":false,"dist":null,"main":false,"distant":false,"pk":119.164,"off":6.3},{"lat":39.3845287,"lon":-3.8410406,"tipo":"signal","ref":"249","lzb":true,"dist":"backward","main":false,"distant":false,"pk":123.948,"off":4.8},{"lat":39.3845508,"lon":-3.8410881,"tipo":"signal","ref":"250","lzb":true,"dist":"forward","main":false,"distant":false,"pk":123.948,"off":0.0},{"lat":39.4062071,"lon":-3.8272386,"tipo":"signal","ref":"245","lzb":true,"dist":"backward","main":false,"distant":false,"pk":121.258,"off":6.4},{"lat":39.4062269,"lon":-3.8273082,"tipo":"signal","ref":"246","lzb":true,"dist":"forward","main":false,"distant":false,"pk":121.257,"off":0.0},{"lat":39.4164986,"lon":-3.8228403,"tipo":"signal","ref":"S212","lzb":false,"dist":"backward","main":true,"distant":false,"pk":120.056,"off":5.3},{"lat":39.4165119,"lon":-3.8228993,"tipo":"signal","ref":"S213","lzb":false,"dist":"forward","main":true,"distant":false,"pk":120.056,"off":0.0},{"lat":39.42654,"lon":-3.8185245,"tipo":"signal","ref":"E241","lzb":false,"dist":"backward","main":true,"distant":false,"pk":118.882,"off":4.4},{"lat":39.4265526,"lon":-3.8185729,"tipo":"signal","ref":"E242","lzb":false,"dist":"forward","main":true,"distant":false,"pk":118.882,"off":0.0},{"lat":39.4340459,"lon":-3.8159893,"tipo":"signal","ref":"237","lzb":true,"dist":"backward","main":false,"distant":false,"pk":118.022,"off":4.8},{"lat":39.4340558,"lon":-3.8160441,"tipo":"signal","ref":"238","lzb":true,"dist":"forward","main":false,"distant":false,"pk":118.021,"off":0.0},{"lat":39.4488371,"lon":-3.8170102,"tipo":"signal","ref":"E241","lzb":false,"dist":"backward","main":false,"distant":true,"pk":116.37,"off":6.2},{"lat":39.4488227,"lon":-3.8170795,"tipo":"signal","ref":"E242","lzb":false,"dist":"forward","main":false,"distant":true,"pk":116.37,"off":0.0},{"lat":39.4600777,"lon":-3.8235202,"tipo":"milestone","ref":"115.0","lzb":false,"dist":null,"main":false,"distant":false,"pk":115.0,"off":5.2},{"lat":39.4600549,"lon":-3.8235728,"tipo":"milestone","ref":"115.0","lzb":false,"dist":null,"main":false,"distant":false,"pk":115.0,"off":0.0},{"lat":39.46007,"lon":-3.8235144,"tipo":"signal","ref":"233","lzb":true,"dist":"backward","main":false,"distant":false,"pk":115.001,"off":5.2},{"lat":39.4600462,"lon":-3.8235663,"tipo":"signal","ref":"234","lzb":true,"dist":"forward","main":false,"distant":false,"pk":115.001,"off":0.0}],"curv":[[105.15,-3.5e-06],[105.175,-2.1e-06],[105.2,-6e-07],[105.225,0.0],[105.25,-0.0],[105.275,-0.0],[105.3,-0.0],[105.325,-0.0],[105.35,0.0],[105.375,0.0],[105.4,0.0],[105.425,0.0],[105.45,-9e-07],[105.475,-2.8e-06],[105.5,-4.7e-06],[105.525,-6.6e-06],[105.55,-8.5e-06],[105.575,-1.04e-05],[105.6,-1.05e-05],[105.625,-8.6e-06],[105.65,-6.7e-06],[105.675,-4.8e-06],[105.7,-2.9e-06],[105.725,-1e-06],[105.75,0.0],[105.775,0.0],[105.8,-0.0],[105.825,0.0],[105.85,0.0],[105.875,0.0],[105.9,-0.0],[105.925,-0.0],[105.95,0.0],[105.975,2e-07],[106.0,6e-07],[106.025,9e-07],[106.05,1.3e-06],[106.075,1.6e-06],[106.1,2e-06],[106.125,1.9e-06],[106.15,1.6e-06],[106.175,1.2e-06],[106.2,9e-07],[106.225,5e-07],[106.25,1e-07],[106.275,0.0],[106.3,0.0],[106.325,0.0],[106.35,-0.0],[106.375,0.0],[106.4,0.0],[106.425,-0.0],[106.45,0.0],[106.475,-7e-07],[106.5,-2.8e-06],[106.525,-4.9e-06],[106.55,-7e-06],[106.575,-9.1e-06],[106.6,-1.12e-05],[106.625,-1.2e-05],[106.65,-9.9e-06],[106.675,-7.8e-06],[106.7,-5.7e-06],[106.725,-3.6e-06],[106.75,-1.5e-06],[106.775,-0.0],[106.8,0.0],[106.825,0.0],[106.85,1e-07],[106.875,1e-07],[106.9,1e-07],[106.925,1e-07],[106.95,1e-07],[106.975,1e-07],[107.0,0.0],[107.025,-0.0],[107.05,-0.0],[107.075,-0.0],[107.1,-0.0],[107.125,-0.0],[107.15,-0.0],[107.175,0.0],[107.2,6e-07],[107.225,5.2e-06],[107.25,9.8e-06],[107.275,1.43e-05],[107.3,1.89e-05],[107.325,2.35e-05],[107.35,2.67e-05],[107.375,2.22e-05],[107.4,1.76e-05],[107.425,1.3e-05],[107.45,8.5e-06],[107.475,3.9e-06],[107.5,0.0],[107.525,0.0],[107.55,0.0],[107.575,0.0],[107.6,0.0],[107.625,0.0],[107.65,0.0],[107.675,0.0],[107.7,0.0],[107.725,-9e-07],[107.75,-3.3e-06],[107.775,-5.7e-06],[107.8,-8.1e-06],[107.825,-1.06e-05],[107.85,-1.3e-05],[107.875,-1.37e-05],[107.9,-1.12e-05],[107.925,-8.8e-06],[107.95,-6.4e-06],[107.975,-4e-06],[108.0,-1.6e-06],[108.025,-0.0],[108.05,-0.0],[108.075,0.0],[108.1,0.0],[108.125,0.0],[108.15,0.0],[108.175,0.0],[108.2,0.0],[108.225,-0.0],[108.25,0.0],[108.275,0.0],[108.3,-0.0],[108.325,0.0],[108.35,-0.0],[108.375,0.0],[108.4,0.0],[108.425,-0.0],[108.45,0.0],[108.475,-0.0],[108.5,-0.0],[108.525,0.0],[108.55,-0.0],[108.575,-0.0],[108.6,-0.0],[108.625,0.0],[108.65,0.0],[108.675,-0.0],[108.7,0.0],[108.725,0.0],[108.75,0.0],[108.775,0.0],[108.8,-0.0],[108.825,0.0],[108.85,-0.0],[108.875,0.0],[108.9,0.0],[108.925,-0.0],[108.95,0.0],[108.975,0.0],[109.0,0.0],[109.025,0.0],[109.05,0.0],[109.075,0.0],[109.1,0.0],[109.125,1e-07],[109.15,0.0],[109.175,0.0],[109.2,0.0],[109.225,0.0],[109.25,0.0],[109.275,0.0],[109.3,0.0],[109.325,0.0],[109.35,0.0],[109.375,0.0],[109.4,0.0],[109.425,0.0],[109.45,0.0],[109.475,0.0],[109.5,0.0],[109.525,-0.0],[109.55,0.0],[109.575,0.0],[109.6,0.0],[109.625,0.0],[109.65,0.0],[109.675,4e-07],[109.7,1.7e-06],[109.725,2.9e-06],[109.75,4.1e-06],[109.775,5.4e-06],[109.8,6.6e-06],[109.825,6.9e-06],[109.85,5.7e-06],[109.875,4.5e-06],[109.9,3.2e-06],[109.925,2e-06],[109.95,8e-07],[109.975,0.0],[110.0,-0.0],[110.025,0.0],[110.05,0.0],[110.075,-0.0],[110.1,0.0],[110.125,0.0],[110.15,0.0],[110.175,0.0],[110.2,0.0],[110.225,0.0],[110.25,0.0],[110.275,-0.0],[110.3,0.0],[110.325,0.0],[110.35,-0.0],[110.375,0.0],[110.4,0.0],[110.425,0.0],[110.45,0.0],[110.475,-0.0],[110.5,0.0],[110.525,0.0],[110.55,-0.0],[110.575,0.0],[110.6,-1.9e-06],[110.625,-5e-06],[110.65,-8e-06],[110.675,-1.11e-05],[110.7,-1.41e-05],[110.725,-1.72e-05],[110.75,-1.63e-05],[110.775,-1.33e-05],[110.8,-1.02e-05],[110.825,-7.2e-06],[110.85,-4.1e-06],[110.875,-1.1e-06],[110.9,0.0],[110.925,0.0],[110.95,-0.0],[110.975,-0.0],[111.0,-0.0],[111.025,0.0],[111.05,0.0],[111.075,-0.0],[111.1,0.0],[111.125,-0.0],[111.15,-0.0],[111.175,-0.0],[111.2,0.0],[111.225,0.0],[111.25,-0.0],[111.275,0.0],[111.3,0.0],[111.325,-0.0],[111.35,-0.0],[111.375,-0.0],[111.4,-3e-07],[111.425,-7e-07],[111.45,-1e-06],[111.475,-1.3e-06],[111.5,-1.6e-06],[111.525,-1.8e-06],[111.55,3e-07],[111.575,3.2e-06],[111.6,6.1e-06],[111.625,9e-06],[111.65,1.19e-05],[111.675,1.47e-05],[111.7,1.37e-05],[111.725,1.11e-05],[111.75,8.6e-06],[111.775,6e-06],[111.8,3.4e-06],[111.825,8e-07],[111.85,0.0],[111.875,-0.0],[111.9,0.0],[111.925,0.0],[111.95,3.6e-06],[111.975,1.38e-05],[112.0,2.4e-05],[112.025,3.41e-05],[112.05,4.43e-05],[112.075,5.45e-05],[112.1,5.74e-05],[112.125,5.25e-05],[112.15,8.51e-05],[112.175,0.0001177],[112.2,0.0001503],[112.225,0.0001829],[112.25,0.0002192],[112.275,0.0002512],[112.3,0.0002099],[112.325,0.0002153],[112.35,0.0002206],[112.375,0.0002259],[112.4,0.0002312],[112.425,0.0002418],[112.45,0.000287],[112.475,0.000239],[112.5,0.0001909],[112.525,0.0001989],[112.55,0.0002125],[112.575,0.0002261],[112.6,0.0002412],[112.625,0.0003028],[112.65,0.0003645],[112.675,0.0003141],[112.7,0.0002525],[112.725,0.0001908],[112.75,0.000129],[112.775,0.0001282],[112.8,0.0001375],[112.825,0.0002028],[112.85,0.0002738],[112.875,0.0003447],[112.9,0.0004155],[112.925,0.0003648],[112.95,0.0002978],[112.975,0.0002824],[113.0,0.000267],[113.025,0.0002516],[113.05,0.0002362],[113.075,0.0002816],[113.1,0.0003293],[113.125,0.0002738],[113.15,0.0002315],[113.175,0.0002274],[113.2,0.0002232],[113.225,0.0002191],[113.25,0.0002189],[113.275,0.0002703],[113.3,0.0002953],[113.325,0.0002439],[113.35,0.0001925],[113.375,0.000163],[113.4,0.0001423],[113.425,0.0001216],[113.45,0.000114],[113.475,0.0001447],[113.5,0.0002152],[113.525,0.0002497],[113.55,0.0002667],[113.575,0.0002837],[113.6,0.0003009],[113.625,0.0003471],[113.65,0.0003309],[113.675,0.0003208],[113.7,0.0003194],[113.725,0.000318],[113.75,0.0003331],[113.775,0.0003073],[113.8,0.0002867],[113.825,0.000274],[113.85,0.0002613],[113.875,0.0002486],[113.9,0.0002027],[113.925,0.0001517],[113.95,0.000164],[113.975,0.0001936],[114.0,0.0002234],[114.025,0.0002532],[114.05,0.0002997],[114.075,0.0003631],[114.1,0.0003348],[114.125,0.0002801],[114.15,0.0002265],[114.175,0.0001728],[114.2,0.0001191],[114.225,0.000112],[114.25,0.0001571],[114.275,0.0002026],[114.3,0.0002457],[114.325,0.0002901],[114.35,0.0003403],[114.375,0.0003057],[114.4,0.0002747],[114.425,0.0002521],[114.45,0.0002683],[114.475,0.0002878],[114.5,0.0002957],[114.525,0.0003331],[114.55,0.0003449],[114.575,0.0003568],[114.6,0.0002935],[114.625,0.0002198],[114.65,0.0001519],[114.675,9.26e-05],[114.7,4.92e-05],[114.725,6.7e-06],[114.75,1.7e-05],[114.775,3.32e-05],[114.8,4.94e-05],[114.825,6.55e-05],[114.85,8.17e-05],[114.875,9.61e-05],[114.9,8e-05],[114.925,6.38e-05],[114.95,4.76e-05],[114.975,3.15e-05],[115.0,1.53e-05],[115.025,-0.0],[115.05,-1.12e-05],[115.075,-2.31e-05],[115.1,-3.49e-05],[115.125,-4.67e-05],[115.15,-5.85e-05],[115.175,-7.03e-05],[115.2,-5.96e-05],[115.225,-4.78e-05],[115.25,-3.6e-05],[115.275,-2.42e-05],[115.3,-1.44e-05],[115.325,-4.32e-05],[115.35,-8.32e-05],[115.375,-0.0001238],[115.4,-0.0001643],[115.424,-0.0002049],[115.449,-0.0002685],[115.474,-0.0002731],[115.499,-0.0002777],[115.524,-0.0002823],[115.549,-0.0002869],[115.574,-0.0002976],[115.599,-0.000287],[115.624,-0.000279],[115.649,-0.000271],[115.674,-0.000263],[115.699,-0.0002693],[115.724,-0.0002782],[115.749,-0.0002524],[115.774,-0.0002446],[115.799,-0.0002367],[115.824,-0.0002289],[115.849,-0.000247],[115.874,-0.0002544],[115.899,-0.0002928],[115.924,-0.0003312],[115.949,-0.0003695],[115.974,-0.0004078],[115.999,-0.0003513],[116.024,-0.0002837],[116.049,-0.000216],[116.074,-0.0001484],[116.099,-0.0001286],[116.124,-0.0001116],[116.149,-0.0001491],[116.174,-0.0001998],[116.199,-0.0002503],[116.223,-0.0003009],[116.248,-0.000281],[116.273,-0.0002568],[116.298,-0.0002327],[116.323,-0.0002085],[116.348,-0.0001843],[116.373,-0.0002022],[116.398,-0.0002267],[116.423,-0.0002516],[116.448,-0.0002766],[116.473,-0.0003015],[116.498,-0.0003263],[116.523,-0.0002849],[116.548,-0.0002785],[116.573,-0.0002733],[116.598,-0.000268],[116.623,-0.0002627],[116.648,-0.0002574],[116.673,-0.0002585],[116.698,-0.0002125],[116.723,-0.0001664],[116.748,-0.0001235],[116.773,-0.000106],[116.798,-8.85e-05],[116.823,-8.89e-05],[116.848,-0.0001175],[116.873,-0.0001522],[116.898,-0.0002402],[116.923,-0.0002775],[116.948,-0.0003149],[116.973,-0.0003523],[116.998,-0.0003896],[117.022,-0.0004321],[117.047,-0.000382],[117.072,-0.0003572],[117.097,-0.0003323],[117.122,-0.0003075],[117.147,-0.0002826],[117.172,-0.0002501],[117.197,-0.0002408],[117.222,-0.0002315],[117.247,-0.0002222],[117.272,-0.0002129],[117.297,-0.0002036],[117.322,-0.0001703],[117.347,-0.0001955],[117.372,-0.0002207],[117.397,-0.0002459],[117.422,-0.000271],[117.447,-0.0002962],[117.472,-0.0003497],[117.497,-0.0003259],[117.522,-0.000302],[117.547,-0.0002781],[117.572,-0.0002542],[117.597,-0.0002347],[117.622,-0.0002375],[117.647,-0.0002487],[117.672,-0.0002599],[117.697,-0.0002711],[117.722,-0.0002823],[117.747,-0.0002845],[117.772,-0.0002166],[117.797,-0.0001724],[117.822,-0.0001429],[117.846,-0.0001625],[117.871,-0.0001821],[117.896,-0.0002062],[117.921,-0.00027],[117.946,-0.000341],[117.971,-0.0003835],[117.996,-0.0003281],[118.021,-0.0002726],[118.046,-0.000217],[118.071,-0.0001937],[118.096,-0.0001768],[118.121,-0.0001725],[118.146,-0.0002173],[118.171,-0.0002619],[118.196,-0.0003067],[118.221,-0.000287],[118.246,-0.0002342],[118.271,-0.0002209],[118.296,-0.0002212],[118.321,-0.0002217],[118.346,-0.0002219],[118.371,-0.0002661],[118.396,-0.0003488],[118.421,-0.0003545],[118.446,-0.0003332],[118.471,-0.0003117],[118.496,-0.0002904],[118.521,-0.0002455],[118.546,-0.0001615],[118.571,-0.0001346],[118.596,-0.0001266],[118.621,-0.0001185],[118.645,-0.0001105],[118.67,-0.0001142],[118.695,-0.0001381],[118.72,-0.0001249],[118.745,-0.000101],[118.77,-7.71e-05],[118.795,-5.31e-05],[118.82,-2.92e-05],[118.845,-5.4e-06],[118.87,-3e-07],[118.895,-5e-07],[118.92,-7e-07],[118.945,-9e-07],[118.97,-1.1e-06],[118.995,-1.1e-06],[119.02,-9e-07],[119.045,-7e-07],[119.07,-5e-07],[119.095,-3e-07],[119.12,-5e-07],[119.145,-3.6e-06],[119.17,-6.8e-06],[119.195,-1e-05],[119.22,-1.33e-05],[119.245,-1.65e-05],[119.27,-1.89e-05],[119.295,-1.57e-05],[119.32,-1.24e-05],[119.345,-9.2e-06],[119.37,-6e-06],[119.395,-2.8e-06],[119.42,0.0],[119.445,0.0],[119.469,-0.0],[119.494,-0.0],[119.519,-0.0],[119.544,-0.0],[119.569,-0.0],[119.594,-0.0],[119.619,0.0],[119.644,0.0],[119.669,0.0],[119.694,0.0],[119.719,0.0],[119.744,0.0],[119.769,-0.0],[119.794,-0.0],[119.819,-0.0],[119.844,-0.0],[119.869,8.1e-06],[119.894,1.69e-05],[119.919,2.58e-05],[119.944,3.46e-05],[119.969,4.35e-05],[119.994,5.23e-05],[120.019,4.5e-05],[120.044,3.62e-05],[120.069,2.52e-05],[120.094,1.37e-05],[120.119,2.3e-06],[120.144,-9.2e-06],[120.169,-1.27e-05],[120.194,-1.53e-05],[120.219,-1.39e-05],[120.244,-1.13e-05],[120.269,-8.7e-06],[120.294,-6.1e-06],[120.319,-3.5e-06],[120.344,-9e-07],[120.369,-1.3e-06],[120.394,-6e-06],[120.419,-1.06e-05],[120.444,-1.52e-05],[120.469,-1.99e-05],[120.494,-2.45e-05],[120.519,-2.7e-05],[120.544,-2.23e-05],[120.569,-1.99e-05],[120.594,-1.87e-05],[120.619,-1.76e-05],[120.644,-1.64e-05],[120.669,-1.63e-05],[120.694,-1.99e-05],[120.719,-1.89e-05],[120.744,-1.54e-05],[120.769,-1.18e-05],[120.794,-8.3e-06],[120.819,-4.8e-06],[120.844,-1.3e-06],[120.869,-0.0],[120.894,-0.0],[120.919,0.0],[120.944,-0.0],[120.969,-0.0],[120.994,4.6e-06],[121.019,1.61e-05],[121.044,2.75e-05],[121.069,3.89e-05],[121.094,5.03e-05],[121.119,6.18e-05],[121.144,6.39e-05],[121.169,5.25e-05],[121.194,4.1e-05],[121.219,2.96e-05],[121.244,1.82e-05],[121.269,6.8e-06],[121.294,0.0],[121.319,0.0],[121.344,-4.9e-06],[121.369,-1.78e-05],[121.394,-3.07e-05],[121.419,-4.35e-05],[121.444,-5.64e-05],[121.469,-6.92e-05],[121.494,-7.23e-05],[121.519,-5.94e-05],[121.544,-4.65e-05],[121.569,-3.37e-05],[121.594,-2.08e-05],[121.619,-7.9e-06],[121.644,0.0],[121.669,0.0],[121.694,0.0],[121.719,0.0],[121.744,0.0],[121.769,-1.9e-06],[121.794,-5.21e-05],[121.819,-0.0001023],[121.844,-0.0001526],[121.869,-0.0002028],[121.894,-0.000253],[121.919,-0.0002993],[121.944,-0.0002739],[121.969,-0.0002751],[121.994,-0.0002762],[122.019,-0.0002774],[122.044,-0.0002785],[122.069,-0.0002815],[122.094,-0.0002835],[122.119,-0.0002321],[122.144,-0.0001808],[122.169,-0.0001513],[122.194,-0.0001471],[122.219,-0.0001429],[122.244,-0.0001635],[122.269,-0.0002107],[122.294,-0.000281],[122.319,-0.0003169],[122.344,-0.0003023],[122.369,-0.0002876],[122.394,-0.0002877],[122.419,-0.0003058],[122.444,-0.0002777],[122.469,-0.0002527],[122.494,-0.0002529],[122.519,-0.0002532],[122.544,-0.000224],[122.569,-0.0001587],[122.594,-0.0001219],[122.619,-0.0001066],[122.644,-9.12e-05],[122.669,-7.59e-05],[122.694,-7.53e-05],[122.719,-9.44e-05],[122.744,-0.0001027],[122.769,-8.7e-05],[122.794,-7.13e-05],[122.819,-5.56e-05],[122.844,-3.99e-05]],"ov":{"s2_22oct_rgb":[39.41977076089067,-3.8337722326061363,39.44707141140194,-3.798552309427476],"s2_29oct_rgb":[39.41977076089067,-3.8337722326061363,39.44707141140194,-3.798552309427476],"s2_dNDVI":[39.41977076089067,-3.8337722326061363,39.44707141140194,-3.798552309427476],"box_sw":[39.427335,-3.818877],"box_ne":[39.430242,-3.815426],"mancha":[39.42128,-3.821444],"pk118_coord":[39.433436,-3.816183]},"pkref":{"93":[39.652175,-3.800738],"99.337":[39.596476,-3.800997],"103.386":[39.562975,-3.818899],"111.972":[39.486156,-3.830696],"115":[39.460055,-3.823573],"115.081":[39.459423,-3.823099],"116":[39.452009,-3.818353],"117":[39.443241,-3.815723],"118":[39.434246,-3.816003],"119":[39.425546,-3.819004],"119.747":[39.419155,-3.821761],"120":[39.416991,-3.822697],"121":[39.408441,-3.82636]}};
+(function(){
+'use strict';
+const $=id=>document.getElementById(id);
+const fmt=(n,d=0)=>Number(n).toLocaleString('es-ES',{minimumFractionDigits:d,maximumFractionDigits:d});
+const clk=t=>{t=Math.round(t);const h=Math.floor(t/3600),m=Math.floor(t%3600/60),s=t%60;return[h,m,s].map(n=>String(n).padStart(2,'0')).join(':')};
+const hms=(h,m,s=0)=>h*3600+m*60+s;
+const T0=hms(8,28),T1=hms(8,55);
+
+/* ---------- tema ---------- */
+$('theme').onclick=()=>{const r=document.documentElement;const dark=r.dataset.theme?r.dataset.theme==='dark':matchMedia('(prefers-color-scheme:dark)').matches;r.dataset.theme=dark?'light':'dark';drawAll(true)};
+
+/* ---------- geometría (eje con PK real) ---------- */
+const CH=DATA.chain; // [lat,lon,pk,z]
+const PKS=CH.map(p=>p[2]);
+function seg(pk){let lo=0,hi=PKS.length-1;if(pk<=PKS[0])return 0;if(pk>=PKS[hi])return hi-1;while(hi-lo>1){const m=(lo+hi)>>1;if(PKS[m]<=pk)lo=m;else hi=m}return lo}
+function ll(pk){const i=seg(pk),a=CH[i],b=CH[i+1],f=(pk-a[2])/((b[2]-a[2])||1);return[a[0]+(b[0]-a[0])*f,a[1]+(b[1]-a[1])*f]}
+function brg(pk){const p=ll(pk-0.04),q=ll(pk+0.04);const k=Math.cos(p[0]*Math.PI/180);const dx=(q[1]-p[1])*k,dy=q[0]-p[0];return(Math.atan2(dx,dy)*180/Math.PI+360)%360}
+function pkLine(a,b){const pts=[ll(a)];for(const p of CH){if(p[2]>a&&p[2]<b)pts.push([p[0],p[1]])}pts.push(ll(b));return pts}
+const SIG=DATA.pts.filter(p=>p.tipo==='signal');
+const E242=DATA.pts.find(p=>p.tipo==='signal'&&p.ref==='E242'&&p.main);
+function pkOf(lat,lon){const k=Math.cos(lat*Math.PI/180);let best=1e9,pk=0;for(let i=0;i<CH.length-1;i++){const a=CH[i],b=CH[i+1];const ax=a[1]*k,ay=a[0],dx=b[1]*k-ax,dy=b[0]-ay,L=dx*dx+dy*dy;const px=lon*k-ax,py=lat-ay;const u=L?Math.max(0,Math.min(1,(px*dx+py*dy)/L)):0;const d=(px-u*dx)**2+(py-u*dy)**2;if(d<best){best=d;pk=a[2]+u*(b[2]-a[2])}}return pk}
+const E242pk=Math.round(pkOf(E242.lat,E242.lon)*1000)/1000;
+// curvatura
+const CURV=DATA.curv;function radiusAt(pk){let b=null;for(const c of CURV){if(Math.abs(c[0]-pk)<0.5&&(b===null||Math.abs(c[1])>Math.abs(b)))b=c[1]}return b?1/Math.abs(b):null}
+function minRadius(a,b){let m=null,at=0;for(const c of CURV){if(c[0]>=a&&c[0]<=b&&c[1]!==0){const r=1/Math.abs(c[1]);if(m===null||r<m){m=r;at=c[0]}}}return{r:m,pk:at}}
+const RMIN=minRadius(112,121);
+
+/* ---------- parámetros e hipótesis ---------- */
+const SC={
+ R:{n:'R · Datos Renfe Data',d:'El AVE reanuda a las 08:43:48 (Renfe Data) y choca a las 08:53:30 (entre 08:53 de la AITAT y 08:54 del 112). El crucero se calcula para cuadrar la hora.',p:{restart:hms(8,43,48),auto:true,target:hms(8,53,30)}},
+ A:{n:'A · Impacto 08:48',d:'Hipótesis inicial de la base: orden de las 08:36 y choque a las 08:48. Hoy sabemos que 08:48 es la hora de la llamada del Iryo, no del choque. Se conserva para comparar.',p:{restart:hms(8,36),auto:true,target:hms(8,48)}},
+ B:{n:'B · Impacto 08:54',d:'Orden de las 08:36 y choque a las 08:54 (112, audios, ministro). Exigiría una marcha lenta durante muchos minutos.',p:{restart:hms(8,36),auto:true,target:hms(8,54)}},
+ C:{n:'C · 175 km/h',d:'Reanudación a las 08:43:48 y crucero fijo de 175 km/h. La hora del alcance sale del cálculo.',p:{restart:hms(8,43,48),auto:false,V:175}},
+ D:{n:'D · Marcha a la vista 40 km/h',d:'Lo que exige el procedimiento según el ministro: el AVE avanza a 40 km/h y frena al ver el Iryo. No hay alcance.',p:{restart:hms(8,43,48),auto:false,V:40}}
+};
+const BASE={restart:hms(8,43,48),auto:true,target:hms(8,53,30),V:175,a:0.5,tr:2.5,ab:1.0,S:600,mA:457,mI:512,stopPK:95.35,headPK:E242pk-0.0,LA:200,LI:202,m:8};
+let P=Object.assign({},BASE),SCEN='R';
+const DEFS=[
+ ['restart','Reanuda AVE (s desde 08:28)',0,1500,1,v=>clk(T0+v).slice(3),true,true],
+ ['V','Crucero (km/h)',20,300,1,v=>fmt(v)+' km/h',false],
+ ['a','Aceleración (m/s²)',0.2,1.0,0.05,v=>fmt(v,2),true],
+ ['tr','Reacción (s)',0,10,0.5,v=>fmt(v,1)+' s',true],
+ ['ab','Deceleración AVE (m/s²)',0.4,1.5,0.05,v=>fmt(v,2),true],
+ ['S','Visibilidad del Iryo (m)',100,3000,25,v=>fmt(v)+' m',true],
+ ['m','Obstáculo lateral (m)',0,40,1,v=>fmt(v)+' m',true],
+ ['mA','Masa AVE (t)',400,520,1,v=>fmt(v)+' t',true],
+ ['mI','Masa Iryo (t)',450,570,1,v=>fmt(v)+' t',true],
+ ['stopPK','PK donde para el AVE',88,102,0.05,v=>fmt(v,2),true],
+ ['headPK','PK cabeza Iryo',118.5,119.2,0.01,v=>fmt(v,2),true]
+];
+function buildCtrls(){const box=$('ctrls');box.innerHTML='';DEFS.forEach(([k,lab,mn,mx,st,f,hyp,isRestart])=>{
+ const r=document.createElement('div');r.className='row';
+ const val=k==='restart'?P.restart-T0:P[k];
+ r.innerHTML=`<label for="i_${k}">${lab}${hyp?'<span class="hyp">H</span>':''}</label><input type="range" id="i_${k}" min="${mn}" max="${mx}" step="${st}" value="${val}"><output id="o_${k}"></output>`;box.appendChild(r);
+ const inp=r.querySelector('input'),out=r.querySelector('output');
+ const upd=()=>{out.textContent=f(Number(inp.value))};upd();
+ inp.oninput=()=>{const v=Number(inp.value);if(k==='restart')P.restart=T0+v;else P[k]=v;if(k==='V'){P.auto=false}upd();recompute()};
+});
+ const ar=document.createElement('div');ar.className='row';ar.innerHTML='<label for="i_auto">Crucero automático</label><input type="checkbox" id="i_auto"><output id="o_auto" style="grid-column:2/4;text-align:left"></output>';box.appendChild(ar);
+ $('i_auto').checked=P.auto;$('i_auto').onchange=e=>{P.auto=e.target.checked;recompute()};
+}
+function syncCtrls(){DEFS.forEach(([k,,, ,,f])=>{const inp=$('i_'+k);if(!inp)return;inp.value=k==='restart'?P.restart-T0:P[k];$('o_'+k).textContent=DEFS.find(d=>d[0]===k)[5](Number(inp.value))});$('i_auto').checked=P.auto}
+function pickScen(id){SCEN=id;P=Object.assign({},BASE,SC[id].p);$('scendesc').textContent=SC[id].d;document.querySelectorAll('#scen .btn').forEach(b=>b.classList.toggle('on',b.dataset.id===id));syncCtrls();recompute()}
+Object.keys(SC).forEach(id=>{const b=document.createElement('button');b.className='btn';b.type='button';b.dataset.id=id;b.textContent=SC[id].n;b.onclick=()=>pickScen(id);$('scen').appendChild(b)});
+$('reset').onclick=()=>pickScen(SCEN);
+$('btnsight').onclick=()=>{const R=RMIN.r||2300;P.S=Math.round(Math.sqrt(8*R*P.m)/25)*25;if(P.S<100)P.S=100;syncCtrls();recompute()};
+
+/* ---------- motor de simulación ---------- */
+const DT=0.2,N=Math.ceil((T1-T0)/DT)+1;
+let SIM=null;
+function aveRun(P,V,xs,collect){ // fase 2 desde reanudación; devuelve {tImp,vImp,...}
+ const tail=P.headPK*1000-P.LI;let x=P.stopPK*1000,v=0,t=P.restart,seen=null,brake=false,imp=null,stop=null;
+ const lim=T1+4000;
+ while(t<lim){
+  const rem=tail-x;
+  if(seen===null&&rem<=P.S)seen=t;
+  if(seen!==null&&!brake&&t>=seen+P.tr)brake=true;
+  if(brake)v=Math.max(0,v-P.ab*DT);else if(v<V)v=Math.min(V,v+P.a*DT);else v=V;
+  x+=v*DT;t+=DT;
+  if(collect){const i=Math.round((t-T0)/DT);if(i>=0&&i<N){xs.x[i]=x;xs.v[i]=v}}
+  if(x>=tail){return{tImp:t,vImp:v,x:tail,seen}}
+  if(brake&&v<=0){return{tImp:Infinity,vImp:0,stop:t,x,seen}}
+ }
+ return{tImp:Infinity,vImp:0,x,seen};
+}
+function solveV(P){let lo=10,hi=300;const r=aveRun(P,hi/3.6);if(r.tImp>P.target)return{V:300,ok:false};
+ for(let k=0;k<30;k++){const mid=(lo+hi)/2;const t=aveRun(Object.assign({},P),mid/3.6).tImp;if(t>P.target)lo=mid;else hi=mid}
+ return{V:(lo+hi)/2,ok:true}}
+function simulate(){
+ const Pp=Object.assign({},P);
+ let V=P.V/3.6,vok=true;
+ if(P.auto){const s=solveV(Object.assign({},P));V=s.V/3.6;vok=s.ok;P.V=Math.round(s.V);}
+ const o={t:new Float64Array(N),xA:new Float64Array(N),vA:new Float64Array(N),xI:new Float64Array(N),vI:new Float64Array(N),V:V*3.6,vok};
+ // Iryo
+ const xs=P.headPK*1000,v0I=250/3.6,dI=0.7,tsI=hms(8,31),tbI=tsI-v0I/dI;
+ // AVE fase 1
+ const v0=250/3.6,d0=0.8,tsA=hms(8,31,50),tbA=tsA-v0/d0,xsA=P.stopPK*1000;
+ const store={x:o.xA,v:o.vA};
+ for(let i=0;i<N;i++){const t=T0+i*DT;o.t[i]=t;
+  // Iryo
+  if(t>=tsI){o.xI[i]=xs;o.vI[i]=0}else if(t>=tbI){const tau=t-tbI,v=v0I-dI*tau;o.vI[i]=v;o.xI[i]=xs-v*v/(2*dI)}else{o.vI[i]=v0I;o.xI[i]=xs-(v0I*(tbI-t)+v0I*v0I/(2*dI))}
+  // AVE antes de reanudar
+  if(t<P.restart){
+   if(t>=tsA){o.xA[i]=xsA;o.vA[i]=0}else if(t>=tbA){const tau=t-tbA,v=v0-d0*tau;o.vA[i]=v;o.xA[i]=xsA-v*v/(2*d0)}else{o.vA[i]=v0;o.xA[i]=xsA-(v0*(tbA-t)+v0*v0/(2*d0))}
+  }
+ }
+ const r=aveRun(Object.assign({},P),V,store,true);
+ o.imp=r.tImp<=T1+1?r:(r.tImp<Infinity?r:null);
+ o.res=r;
+ if(r.tImp<Infinity){const i0=Math.round((r.tImp-T0)/DT);for(let i=Math.max(0,i0);i<N;i++){o.xA[i]=r.x;o.vA[i]=0}}
+ // hueco entre restart y primeras muestras
+ for(let i=0;i<N;i++){if(o.t[i]>=P.restart&&o.xA[i]===0){o.xA[i]=xsA}}
+ // fase de aproximación del AVE anterior a T0 puede quedar fuera de la cadena; no se recorta
+ SIM=o;return o}
+function at(t){const f=Math.min(N-1.001,Math.max(0,(t-T0)/DT));const i=Math.floor(f),u=f-i;const g=a=>a[i]+(a[i+1]-a[i])*u;return{xA:g(SIM.xA),vA:g(SIM.vA),xI:g(SIM.xI),vI:g(SIM.vI)}}
+
+/* ---------- mapa ---------- */
+const map=L.map('map',{zoomControl:true,preferCanvas:false}).setView(ll(118.6),14);
+map.attributionControl.setPrefix(false);
+const WMTS=(host,layer,ext)=>`https://www.ign.es/wmts/${host}?service=WMTS&request=GetTile&version=1.0.0&layer=${layer}&style=default&tilematrixset=GoogleMapsCompatible&format=image/${ext}&tilematrix={z}&tilerow={y}&tilecol={x}`;
+const wms=(url,layers,extra)=>L.tileLayer.wms(url,Object.assign({layers,format:'image/png',transparent:true,version:'1.3.0'},extra||{}));
+const mk=(o)=>o;
+const LAYERS=[
+ {id:'pnoa',g:'Base',n:'Ortofoto PNOA (IGN)',svc:'pnoa',base:true,on:true,mk:()=>L.tileLayer(WMTS('pnoa-ma','OI.OrthoimageCoverage','jpeg'),{maxZoom:21,maxNativeZoom:19,attribution:'PNOA © IGN España'})},
+ {id:'ignbase',g:'Base',n:'Mapa base IGN',svc:'ignbase',base:true,mk:()=>L.tileLayer(WMTS('ign-base','IGNBaseTodo','jpeg'),{maxZoom:21,maxNativeZoom:19,attribution:'© IGN España'})},
+ {id:'osm',g:'Base',n:'OpenStreetMap',svc:'osm',base:true,mk:()=>L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:21,maxNativeZoom:19,attribution:'© OpenStreetMap'})},
+ {id:'eox',g:'Base',n:'Sentinel-2 cloudless 2021 (EOX, mosaico anual)',svc:'eox',base:true,mk:()=>L.tileLayer('https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless-2021_3857/default/g/{z}/{y}/{x}.jpg',{maxZoom:21,maxNativeZoom:14,attribution:'Sentinel-2 cloudless © EOX'})},
+ {id:'mdt',g:'Terreno',n:'MDT elevaciones (IGN, WMS)',svc:'mdt',op:.6,mk:()=>wms('https://servicios.idee.es/wms-inspire/mdt','EL.ElevationGridCoverage',{attribution:'MDT © IGN'})},
+ {id:'curv',g:'Terreno',n:'Curvas de nivel (IGN, WMS)',svc:'mdt',op:.9,mk:()=>wms('https://servicios.idee.es/wms-inspire/mdt','EL.ContourLine',{attribution:'© IGN'})},
+ {id:'transp',g:'Redes',n:'Red ferroviaria IDEE (WMS)',svc:'transp',op:.9,mk:()=>wms('https://servicios.idee.es/wms-inspire/transportes','TN.RailTransportNetwork.RailwayLink',{attribution:'Red de transporte © IGN/ADIF'})},
+ {id:'cat',g:'Redes',n:'Parcelas Catastro INSPIRE (WMS)',svc:'cat',op:.9,mk:()=>wms('https://ovc.catastro.meh.es/cartografia/INSPIRE/spadgcwms.aspx','CP.CadastralParcel',{minZoom:14,attribution:'Catastro'})},
+ {id:'orm',g:'Redes',n:'OpenRailwayMap: infraestructura',svc:'orm',op:.9,mk:()=>L.tileLayer('https://{s}.tiles.openrailwaymap.org/standard/{z}/{x}/{y}.png',{subdomains:'abc',maxZoom:21,maxNativeZoom:19,attribution:'© OpenRailwayMap'})},
+ {id:'ormv',g:'Redes',n:'OpenRailwayMap: velocidades',svc:'orm',op:.9,mk:()=>L.tileLayer('https://{s}.tiles.openrailwaymap.org/maxspeed/{z}/{x}/{y}.png',{subdomains:'abc',maxZoom:21,maxNativeZoom:19})},
+ {id:'orms',g:'Redes',n:'OpenRailwayMap: señalización',svc:'orm',op:.9,mk:()=>L.tileLayer('https://{s}.tiles.openrailwaymap.org/signals/{z}/{x}/{y}.png',{subdomains:'abc',maxZoom:21,maxNativeZoom:19})},
+ {id:'s22',g:'Satélite',n:'Sentinel-2 22-oct (antes)',op:1,mk:()=>L.imageOverlay('img/s2_22oct_rgb.png',[[DATA.ov.s2_22oct_rgb[0],DATA.ov.s2_22oct_rgb[1]],[DATA.ov.s2_22oct_rgb[2],DATA.ov.s2_22oct_rgb[3]]])},
+ {id:'s29',g:'Satélite',n:'Sentinel-2 29-oct (después)',op:1,mk:()=>L.imageOverlay('img/s2_29oct_rgb.png',[[DATA.ov.s2_29oct_rgb[0],DATA.ov.s2_29oct_rgb[1]],[DATA.ov.s2_29oct_rgb[2],DATA.ov.s2_29oct_rgb[3]]])},
+ {id:'sndvi',g:'Satélite',n:'Cambio de NDVI 29−22 oct',op:.8,mk:()=>L.imageOverlay('img/s2_dNDVI.png',[[DATA.ov.s2_dNDVI[0],DATA.ov.s2_dNDVI[1]],[DATA.ov.s2_dNDVI[2],DATA.ov.s2_dNDVI[3]]])},
+ {id:'mtg',g:'Satélite',n:'Meteosat MTG Geocolour 07:50 UTC (EUMETSAT)',svc:'eum',op:.85,regional:true,mk:()=>wms('https://view.eumetsat.int/geoserver/wms','mtg_fd:rgb_geocolour',{time:'2026-10-28T07:50:00.000Z',attribution:'EUMETSAT'})},
+ {id:'mtgfog',g:'Satélite',n:'Meteosat MTG niebla/nubes bajas 07:50 UTC',svc:'eum',op:.85,regional:true,mk:()=>wms('https://view.eumetsat.int/geoserver/wms','mtg_fd:rgb_fog',{time:'2026-10-28T07:50:00.000Z',attribution:'EUMETSAT'})},
+ {id:'msg',g:'Satélite',n:'Meteosat MSG color natural 07:45 UTC',svc:'eum',op:.85,regional:true,mk:()=>wms('https://view.eumetsat.int/geoserver/wms','msg_fes:rgb_natural',{time:'2026-10-28T07:45:00.000Z',attribution:'EUMETSAT'})},
+ {id:'lzb',g:'Simulación',n:'Tramo sin LZB (PK 62–125, hipótesis visual)',on:true,mk:()=>L.polyline(pkLine(63.5,125),{color:'#e08a00',weight:12,opacity:.35,lineCap:'butt'})},
+ {id:'osmlive',g:'Simulación',n:'Vías OSM en vivo (Overpass)',on:true,mk:()=>L.layerGroup()},
+ {id:'sigs',g:'Simulación',n:'Señales, hitos y cambios (OSM)',on:true,mk:()=>L.layerGroup()},
+ {id:'ind',g:'Simulación',n:'Indicio satelital (débil)',mk:()=>L.layerGroup([L.rectangle([DATA.ov.box_sw,DATA.ov.box_ne],{color:'#ff2d55',weight:2,fill:false,dashArray:'5 4'}).bindTooltip('Pérdida local de NDVI junto a la vía, PK 118,5–118,8 (indicio débil)'),L.circleMarker(DATA.ov.mancha,{radius:9,color:'#ff2d55',weight:2,fillOpacity:.15}).bindTooltip('Mancha oscura ~PK 119,4 (UTM 429293, 4363850). Indicio débil')])}
+];
+const LMAP={};const CNT={};
+LAYERS.forEach(l=>{l.layer=l.mk();LMAP[l.id]=l;l.op=l.op||1;
+ if(l.svc){CNT[l.svc]=CNT[l.svc]||{ok:0,err:0};l.layer.on&&l.layer.on('tileload',()=>{CNT[l.svc].ok++;svcLive(l.svc)});l.layer.on&&l.layer.on('tileerror',()=>{CNT[l.svc].err++;svcLive(l.svc)})}
+});
+function setLayer(id,on){const l=LMAP[id];if(!l)return;if(l.base&&on){LAYERS.filter(x=>x.base&&x.id!==id).forEach(x=>{if(map.hasLayer(x.layer))map.removeLayer(x.layer);x.chk&&(x.chk.checked=false)})}
+ if(on){l.layer.addTo(map);if(l.layer.setOpacity)l.layer.setOpacity(l.op);if(l.base)l.layer.bringToBack()}else if(map.hasLayer(l.layer))map.removeLayer(l.layer);
+ if(l.chk)l.chk.checked=on;
+ const sat=document.querySelector(`#satbtns [data-id="${id}"]`);if(sat)sat.classList.toggle('on',on)}
+function svcLive(svc){const c=CNT[svc];const s=SV[svc];if(!s)return;if(c.ok>0&&s.state!=='ok'){setSt(svc,'ok','Sirviendo teselas ('+c.ok+' cargadas'+(c.err?', '+c.err+' con error':'')+')',s.ms)}else if(c.ok===0&&c.err>=3){setSt(svc,'bad','Teselas con error ('+c.err+'); sin ninguna cargada')}else if(c.ok>0&&c.err>c.ok){setSt(svc,'warn',c.ok+' teselas bien, '+c.err+' con error',s.ms)}}
+// UI capas
+(function(){const box=$('layui');let g='';LAYERS.forEach(l=>{if(l.g!==g){g=l.g;const h=document.createElement('div');h.className='lg';h.textContent=g;box.appendChild(h)}
+ const r=document.createElement('div');r.className='lay';
+ const t=l.base?'radio':'checkbox';
+ r.innerHTML=`<label><input type="${t}" name="${l.base?'base':l.id}">${l.n}</label><input type="range" min="0.1" max="1" step="0.05" value="${l.op}" aria-label="Opacidad ${l.n}">`;
+ box.appendChild(r);l.chk=r.querySelector('input');l.chk.onchange=()=>setLayer(l.id,l.chk.checked);
+ r.querySelector('input[type=range]').oninput=e=>{l.op=Number(e.target.value);if(l.layer.setOpacity)l.layer.setOpacity(l.op)}
+});
+ const p=document.createElement('p');p.className='small';p.textContent='El mosaico EOX es anual, no del día. Las capas Meteosat tienen píxel de unos 3 km: se ven alejando el zoom.';box.appendChild(p)})();
+LAYERS.forEach(l=>{if(l.on)setLayer(l.id,true)});
+// botones satélite
+(function(){const box=$('satbtns');['s22','s29','sndvi','ind','mtg','mtgfog','msg','eox'].forEach(id=>{const l=LMAP[id];const b=document.createElement('button');b.className='btn';b.type='button';b.dataset.id=id;b.textContent=l.n.replace(' (EUMETSAT)','');b.onclick=()=>{const on=!map.hasLayer(l.layer);setLayer(id,on);if(on){if(l.regional)map.setView([39.9,-3.8],6);else if(id==='eox'){}else map.setView(ll(118.8),14)}};box.appendChild(b)})})();
+
+// trenes
+const trA=L.polyline([[0,0],[0,0]],{color:'#6b2fa0',weight:7,opacity:1,lineCap:'butt'}).addTo(map);
+const trI=L.polyline([[0,0],[0,0]],{color:'#c0123f',weight:7,opacity:1,lineCap:'butt'}).addTo(map);
+const trail=L.polyline([],{color:'#b98af0',weight:3,opacity:.7}).addTo(map);
+const haloA=L.circleMarker([0,0],{radius:9,color:'#b98af0',weight:2,fillColor:'#6b2fa0',fillOpacity:.9}).bindTooltip('AVE 2080',{permanent:true,direction:'top',className:'trtip',offset:[0,-8]}).addTo(map);
+const haloI=L.circleMarker([0,0],{radius:9,color:'#ff5a82',weight:2,fillColor:'#c0123f',fillOpacity:.9}).bindTooltip('Iryo 6076',{permanent:true,direction:'bottom',className:'trtip',offset:[0,8]}).addTo(map);
+let impMk=null;
+// señales
+function drawSignals(list,src){const g=LMAP.sigs.layer;g.clearLayers();list.forEach(p=>{const col=p.tipo==='milestone'?'#ffd400':p.tipo==='signal'?(p.main?'#ff9800':p.distant?'#ffe08a':'#00bcd4'):'#fff';
+ L.marker([p.lat,p.lon],{icon:L.divIcon({className:'',html:`<div class="sig" style="background:${col}"></div>`,iconSize:[1,1]})}).bindTooltip((p.tipo==='milestone'?'Hito PK '+p.ref:p.tipo==='signal'?'Señal '+(p.ref||'')+(p.main?' (principal)':p.distant?' (avanzada)':p.lzb?' (LZB)':''):p.tipo)+' · '+src+(p.pk!=null?' · PK '+fmt(p.pk,3):'')).addTo(g)})}
+drawSignals(DATA.pts,'caché');
+function drawOSM(ways,src){const g=LMAP.osmlive.layer;g.clearLayers();ways.forEach(w=>L.polyline(w,{color:'#2aa7a0',weight:2,opacity:.9}).addTo(g))}
+drawOSM([CH.map(p=>[p[0],p[1]]),DATA.chainN],'caché');
+
+/* ---------- servicios ---------- */
+const SV={};const SVN={pnoa:'IGN PNOA',ignbase:'IGN base',mdt:'IGN MDT (WMS)',transp:'IDEE Transportes',cat:'Catastro INSPIRE',orm:'OpenRailwayMap',osm:'OSM teselas',eox:'EOX Sentinel-2',eum:'EUMETSAT Meteosat',ovp:'Overpass (OSM)',wx:'Open-Meteo clima',el:'Open-Meteo elevación'};
+function chip(id){const c=document.createElement('span');c.className='chip';c.id='sv_'+id;c.innerHTML='<i class="dot pend"></i><span>'+SVN[id]+'</span><span class="small" id="svt_'+id+'"></span>';$('status').appendChild(c);SV[id]={state:'pend',msg:'comprobando…'}}
+Object.keys(SVN).forEach(chip);
+function setSt(id,state,msg,ms){SV[id].state=state;SV[id].msg=msg;SV[id].ms=ms;const c=$('sv_'+id);if(!c)return;c.querySelector('.dot').className='dot '+state;c.title=SVN[id]+': '+msg;$('svt_'+id).textContent=ms!=null?fmt(ms)+' ms':state==='bad'?'sin respuesta':'';sumSt()}
+function sumSt(){const v=Object.values(SV);const bad=Object.keys(SV).filter(k=>SV[k].state==='bad');const pend=v.filter(x=>x.state==='pend').length;$('statusmsg').textContent=pend?'Comprobando '+pend+' servidores…':bad.length?'Sin respuesta: '+bad.map(k=>SVN[k]).join(', ')+'. Se usa la copia local del trazado y de los datos cuando existe.':'Todos los servidores responden.'}
+function probeImg(id,url){const t0=performance.now();return new Promise(res=>{const im=new Image();let done=false;const to=setTimeout(()=>{if(!done){done=true;setSt(id,'bad','Sin respuesta en 15 s (teselas)');res(false)}},15000);im.onload=()=>{if(done)return;done=true;clearTimeout(to);setSt(id,'ok','Responde a una tesela de prueba',performance.now()-t0);res(true)};im.onerror=()=>{if(done)return;done=true;clearTimeout(to);setSt(id,'bad','Error al pedir una tesela de prueba (bloqueo, CORS/referer o servidor caído)');res(false)};im.src=url})}
+const tz=(u)=>u.replace('{z}',14).replace('{y}',6240).replace('{x}',7930).replace('{s}','a');
+const wmsProbe=(base,layer,extra)=>base+'?service=WMS&version=1.3.0&request=GetMap&layers='+layer+'&styles=&crs=EPSG:4326&bbox=39.40,-3.84,39.46,-3.78&width=128&height=128&format=image/png&transparent=true'+(extra||'');
+function probeAll(){
+ probeImg('pnoa',tz(WMTS('pnoa-ma','OI.OrthoimageCoverage','jpeg')));
+ probeImg('ignbase',tz(WMTS('ign-base','IGNBaseTodo','jpeg')));
+ probeImg('osm','https://tile.openstreetmap.org/14/7930/6240.png');
+ probeImg('eox','https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless-2021_3857/default/g/9/197/248.jpg');
+ probeImg('orm','https://a.tiles.openrailwaymap.org/standard/14/7930/6240.png');
+ probeImg('mdt',wmsProbe('https://servicios.idee.es/wms-inspire/mdt','EL.ElevationGridCoverage'));
+ probeImg('transp',wmsProbe('https://servicios.idee.es/wms-inspire/transportes','TN.RailTransportNetwork.RailwayLink'));
+ probeImg('cat',wmsProbe('https://ovc.catastro.meh.es/cartografia/INSPIRE/spadgcwms.aspx','CP.CadastralParcel'));
+ probeImg('eum',wmsProbe('https://view.eumetsat.int/geoserver/wms','mtg_fd:rgb_geocolour','&time=2026-10-28T07:50:00.000Z'));
+ loadOverpass();loadWeather();loadElevation();
+}
+$('recheck').onclick=()=>{Object.keys(SV).forEach(k=>setSt(k,'pend','comprobando…'));$('statusmsg').textContent='Comprobando…';Object.values(CNT).forEach(c=>{c.ok=0;c.err=0});probeAll()};
+async function fj(url,ms,opts){const ac=new AbortController();const to=setTimeout(()=>ac.abort(),ms);try{const r=await fetch(url,Object.assign({signal:ac.signal},opts||{}));if(!r.ok)throw new Error('HTTP '+r.status);return await r.json()}finally{clearTimeout(to)}}
+// Overpass
+const OVP=['https://overpass.kumi.systems/api/interpreter','https://maps.mail.ru/osm/tools/overpass/api/interpreter','https://overpass.private.coffee/api/interpreter','https://overpass-api.de/api/interpreter'];
+async function loadOverpass(){
+ const q='[out:json][timeout:25];(way["railway"="rail"]["ref"="010"](39.40,-3.85,39.46,-3.78);node["railway"~"^(signal|milestone|switch|buffer_stop)$"](39.40,-3.85,39.46,-3.78););out geom;';
+ const t0=performance.now();const err=[];
+ const tasks=OVP.map(ep=>fj(ep+'?data='+encodeURIComponent(q),30000).then(d=>{if(!((d.elements||[]).length))throw new Error('respuesta vacía');return{ep,d}}).catch(e=>{err.push(new URL(ep).host+' ('+(e.name==='AbortError'?'tiempo agotado':e.message)+')');throw e}));
+ try{
+  const {ep,d}=await Promise.any(tasks);
+  const el=d.elements;const ways=el.filter(e=>e.type==='way'&&e.geometry).map(e=>e.geometry.map(p=>[p.lat,p.lon]));
+  const nodes=el.filter(e=>e.type==='node'&&e.tags).map(e=>({lat:e.lat,lon:e.lon,tipo:e.tags.railway,ref:e.tags.ref||e.tags['railway:position'],main:!!e.tags['railway:signal:main'],distant:!!e.tags['railway:signal:distant'],lzb:(e.tags['railway:signal:train_protection']||'').includes('lzb')}));
+  if(ways.length)drawOSM(ways,'vivo');
+  if(nodes.length)drawSignals(nodes,'en vivo');
+  const e242=nodes.some(n=>n.tipo==='signal'&&n.ref==='E242'&&n.main);
+  setSt('ovp','ok','Datos en vivo de '+new URL(ep).host+': '+ways.length+' tramos de vía y '+nodes.length+' elementos (señales, hitos, cambios). Señal E242 '+(e242?'localizada en vivo':'no aparece en vivo')+(err.length?'. Sin respuesta: '+err.join('; '):''),performance.now()-t0);
+ }catch(e){
+  setSt('ovp','bad','Ningún servidor Overpass respondió ('+err.join('; ')+'). Se usa la copia local incrustada del trazado y las señales.');
+ }
+}
+// Meteo
+let WX=null;
+async function loadWeather(){const t0=performance.now();
+ try{
+  const v='temperature_2m,relative_humidity_2m,cloud_cover,visibility,wind_speed_10m,wind_direction_10m,shortwave_radiation';
+  const d=await fj('https://archive-api.open-meteo.com/v1/archive?latitude=39.427&longitude=-3.819&hourly='+v+'&start_date=2026-10-28&end_date=2026-10-28&timezone=Europe%2FMadrid',15000);
+  WX=d.hourly;let vis=WX.visibility.some(x=>x!=null);
+  if(!vis){try{const f=await fj('https://api.open-meteo.com/v1/forecast?latitude=39.427&longitude=-3.819&hourly=visibility&start_date=2026-10-28&end_date=2026-10-28&timezone=Europe%2FMadrid',12000);if(f.hourly.visibility.some(x=>x!=null)){WX.visibility=f.hourly.visibility;vis=true}}catch(e){}}
+  setSt('wx','ok','Open-Meteo (reanálisis) para el 28-oct-2026'+(vis?'':'; visibilidad no disponible para ese día'),performance.now()-t0);renderWx(vis)
+ }catch(e){setSt('wx','bad','Open-Meteo no responde ('+e.message+')');$('wx').textContent='Sin datos meteorológicos: el servidor no respondió.'}}
+function renderWx(vis){const rows=[7,8,9,10].map(h=>`<tr><td class="mono">${String(h).padStart(2,'0')}:00</td><td>${fmt(WX.temperature_2m[h],1)} °C</td><td>${fmt(WX.cloud_cover[h])} %</td><td>${WX.visibility[h]!=null?fmt(WX.visibility[h]/1000,1)+' km':'sin dato'}</td><td>${fmt(WX.wind_speed_10m[h],1)} km/h · ${fmt(WX.wind_direction_10m[h])}°</td><td>${fmt(WX.relative_humidity_2m[h])} %</td><td>${fmt(WX.shortwave_radiation[h])} W/m²</td></tr>`).join('');
+ $('wx').innerHTML='<table><tr><th>Hora</th><th>Temp.</th><th>Nubes</th><th>Visibilidad</th><th>Viento</th><th>Humedad</th><th>Radiación</th></tr>'+rows+'</table><p class="small">Reanálisis en malla (no es una estación en el lugar). '+(vis?'':'Open-Meteo no devuelve visibilidad horizontal para ese día; para un dictamen hay que pedir a AEMET el certificado de las estaciones próximas. ')+'Nubosidad 0 % coincide con la imagen Meteosat de las 07:50 UTC.</p>'}
+// Elevación
+let ELV=null;
+async function loadElevation(){const t0=performance.now();const pk=[];for(let p=95;p<=122.01;p+=0.4)pk.push(Math.round(p*100)/100);
+ try{const la=pk.map(p=>ll(p)[0].toFixed(5)).join(','),lo=pk.map(p=>ll(p)[1].toFixed(5)).join(',');
+  const d=await fj('https://api.open-meteo.com/v1/elevation?latitude='+la+'&longitude='+lo,15000);
+  ELV=pk.map((p,i)=>[p,d.elevation[i]]);setSt('el','ok','Perfil de '+ELV.length+' puntos (DEM de 90 m)',performance.now()-t0);drawAll(true);geoInfo()
+ }catch(e){setSt('el','bad','Open-Meteo elevación no responde ('+e.message+'); se muestra solo el MDT05 de 5 m calculado en local');drawAll(true)}}
+const MDT05=CH.filter(p=>p[3]!=null).map(p=>[p[2],p[3]]);
+function geoInfo(){const dh=(a,b)=>{const za=interp(MDT05,a),zb=interp(MDT05,b);return zb-za};
+ $('geo').innerHTML=`Eje: ${CH.length} vértices OSM (ref. 010) con PK calibrado con los hitos 115,0 y 120,0 y la señal ${E242?'E242 (PK '+fmt(E242pk,3)+')':''}. Radio mínimo del eje entre PK 112 y 121: <b>${RMIN.r?fmt(RMIN.r):'—'} m</b> en el PK ${fmt(RMIN.pk,2)} (dato derivado de OSM, no de proyecto). Rumbo de la vía en el PK 118,8: <b>${fmt(brg(118.8))}°</b>. Cota del terreno (MDT05, IGN) PK 118: ${fmt(interp(MDT05,118))} m; desnivel PK 116 → 120: ${fmt(dh(116,120),1)} m. Con el eje y los 90 m de resolución de Open-Meteo el perfil se suaviza; el MDT05 de 5 m resuelve el terraplén.${ELV?'':' <b>Open-Meteo elevación sin datos.</b>'}`}
+function interp(a,x){if(!a.length)return NaN;if(x<=a[0][0])return a[0][1];for(let i=1;i<a.length;i++){if(a[i][0]>=x){const u=(x-a[i-1][0])/((a[i][0]-a[i-1][0])||1);return a[i-1][1]+(a[i][1]-a[i-1][1])*u}}return a[a.length-1][1]}
+
+/* ---------- gráficos ---------- */
+function css(n){return getComputedStyle(document.documentElement).getPropertyValue(n).trim()}
+function chart(cv,o){const dpr=Math.min(devicePixelRatio||1,2);const w=cv.clientWidth,h=cv.clientHeight;if(!w)return;if(cv.width!==Math.round(w*dpr)){cv.width=Math.round(w*dpr);cv.height=Math.round(h*dpr)}
+ const g=cv.getContext('2d');g.setTransform(dpr,0,0,dpr,0,0);g.clearRect(0,0,w,h);
+ const ml=48,mr=10,mt=8,mb=30,pw=w-ml-mr,ph=h-mt-mb;const ink=css('--ink'),mut=css('--mut'),line=css('--line');
+ const X=x=>ml+(x-o.x[0])/(o.x[1]-o.x[0])*pw,Y=y=>mt+ph-(y-o.y[0])/(o.y[1]-o.y[0])*ph;
+ g.font='11px system-ui';g.strokeStyle=line;g.fillStyle=mut;g.lineWidth=1;
+ const nx=o.nx||5,ny=o.ny||5;
+ for(let i=0;i<=ny;i++){const v=o.y[0]+(o.y[1]-o.y[0])*i/ny,y=Y(v);g.beginPath();g.moveTo(ml,y);g.lineTo(w-mr,y);g.stroke();g.textAlign='right';g.fillText(o.yf?o.yf(v):fmt(v),ml-4,y+4)}
+ for(let i=0;i<=nx;i++){const v=o.x[0]+(o.x[1]-o.x[0])*i/nx,x=X(v);g.beginPath();g.moveTo(x,mt);g.lineTo(x,mt+ph);g.stroke();g.textAlign='center';g.fillText(o.xf?o.xf(v):fmt(v),x,h-14)}
+ g.fillStyle=mut;g.textAlign='center';g.fillText(o.xl,ml+pw/2,h-2);
+ g.save();g.translate(11,mt+ph/2);g.rotate(-Math.PI/2);g.fillText(o.yl,0,0);g.restore();
+ g.save();g.beginPath();g.rect(ml,mt,pw,ph);g.clip();
+ (o.hl||[]).forEach(l=>{g.strokeStyle=l.c;g.setLineDash([5,4]);g.beginPath();g.moveTo(ml,Y(l.v));g.lineTo(w-mr,Y(l.v));g.stroke();g.setLineDash([]);g.fillStyle=l.c;g.textAlign='right';g.fillText(l.t,w-mr-4,Y(l.v)+12)});
+ (o.bands||[]).forEach(b=>{g.fillStyle=b.c;g.fillRect(X(b.x0),mt,X(b.x1)-X(b.x0),ph)});
+ o.s.forEach(s=>{g.strokeStyle=s.c;g.lineWidth=s.w||2;g.setLineDash(s.d||[]);g.beginPath();let st=false;for(let i=0;i<s.x.length;i+=s.k||1){const x=X(s.x[i]),y=Y(s.y[i]);if(!st){g.moveTo(x,y);st=true}else g.lineTo(x,y)}g.stroke();g.setLineDash([])});
+ if(o.mx!=null){g.strokeStyle=css('--acc2');g.lineWidth=1.5;g.beginPath();g.moveTo(X(o.mx),mt);g.lineTo(X(o.mx),mt+ph);g.stroke();
+  (o.pts||[]).forEach(p=>{g.fillStyle=p.c;g.beginPath();g.arc(X(o.mx),Y(p.y),4,0,7);g.fill()})}
+ g.restore();
+ // leyenda
+ let lx=ml+6;g.textAlign='left';(o.leg||[]).forEach(l=>{g.fillStyle=l.c;g.fillRect(lx,mt+4,14,3);g.fillStyle=ink;g.fillText(l.t,lx+18,mt+9);lx+=26+g.measureText(l.t).width})}
+let lastChart=0;
+function drawAll(force,now){const t=(typeof now==='number')?now:cur;
+ const sk=3,xs=[],ia=[],ib=[],va=[],vi=[];const tt=[];for(let i=0;i<N;i+=sk){tt.push(SIM.t[i]);ia.push(SIM.xA[i]/1000);ib.push(SIM.xI[i]/1000);va.push(SIM.vA[i]*3.6);vi.push(SIM.vI[i]*3.6)}
+ const ymin=Math.floor(Math.min(...ia)/5)*5,ymax=Math.ceil(P.headPK+4);
+ chart($('c1'),{x:[T0,T1],y:[Math.max(60,ymin),ymax],xl:'hora',yl:'PK (km)',xf:v=>clk(v).slice(0,5),yf:v=>fmt(v,0),s:[{x:tt,y:ia,c:css('--ave'),w:2.5},{x:tt,y:ib,c:css('--iry'),w:2.5}],hl:[{v:E242pk,c:'#e08a00',t:'E242 · PK '+fmt(E242pk,2)}],mx:t,leg:[{c:css('--ave'),t:'AVE 2080 (cabeza)'},{c:css('--iry'),t:'Iryo 6076 (cabeza)'}],pts:[{y:interp2(tt,ia,t),c:css('--ave')},{y:interp2(tt,ib,t),c:css('--iry')}]});
+ // v-d del AVE: desde la reanudación
+ const dx=[],dv=[];for(let i=0;i<N;i++){if(SIM.t[i]>=P.restart-5&&SIM.xA[i]/1000>=P.stopPK-0.01){dx.push(SIM.xA[i]/1000);dv.push(SIM.vA[i]*3.6)}}
+ const ax=SIM.xA.length?at(t).xA/1000:0;
+ chart($('c2'),{x:[P.stopPK-0.5,P.headPK+0.3],y:[0,340],xl:'PK (km)',yl:'km/h',xf:v=>fmt(v,0),s:[{x:dx,y:dv,c:css('--ave'),w:2.5}],hl:[{v:40,c:'#2e9e50',t:'40 km/h marcha a la vista'},{v:200,c:'#888',t:'200 km/h'},{v:300,c:'#c62828',t:'300 km/h (máx.)'}],bands:[{x0:P.headPK-P.LI/1000-P.S/1000,x1:P.headPK-P.LI/1000,c:'rgba(224,138,0,.14)'}],mx:Math.max(P.stopPK-0.5,Math.min(P.headPK+0.3,ax)),pts:[{y:at(t).vA*3.6,c:css('--ave')}],leg:[{c:css('--ave'),t:'AVE'},{c:'rgba(224,138,0,.5)',t:'tramo con el Iryo a la vista'}]});
+ chart($('c3'),{x:[T0,T1],y:[0,340],xl:'hora',yl:'km/h',xf:v=>clk(v).slice(0,5),s:[{x:tt,y:va,c:css('--ave'),w:2.5},{x:tt,y:vi,c:css('--iry'),w:2.5}],hl:[{v:40,c:'#2e9e50',t:'40 km/h'}],mx:t,pts:[{y:at(t).vA*3.6,c:css('--ave')},{y:at(t).vI*3.6,c:css('--iry')}],leg:[{c:css('--ave'),t:'AVE'},{c:css('--iry'),t:'Iryo'}]});
+ const s4=[];if(ELV)s4.push({x:ELV.map(p=>p[0]),y:ELV.map(p=>p[1]),c:css('--acc2'),w:2});
+ s4.push({x:MDT05.map(p=>p[0]),y:MDT05.map(p=>p[1]),c:'#2aa7a0',w:2.5});
+ const allz=s4.flatMap(s=>s.y).filter(v=>isFinite(v));const zmin=Math.floor((Math.min(...allz)-5)/10)*10,zmax=Math.ceil((Math.max(...allz)+5)/10)*10;
+ chart($('c4'),{x:[113,123],y:[zmin,zmax],xl:'PK (km)',yl:'cota (m)',xf:v=>fmt(v,0),s:s4,hl:[{v:interp(MDT05,E242pk),c:'#e08a00',t:'E242'}],mx:Math.max(113,Math.min(123,at(t).xA/1000)),leg:[{c:'#2aa7a0',t:'MDT05 IGN (5 m)'}].concat(ELV?[{c:css('--acc2'),t:'Open-Meteo (90 m)'}]:[])});
+}
+function interp2(xs,ys,x){let i=0;while(i<xs.length-1&&xs[i+1]<x)i++;if(i>=xs.length-1)return ys[ys.length-1];const u=(x-xs[i])/((xs[i+1]-xs[i])||1);return ys[i]+(ys[i+1]-ys[i])*u}
+
+/* ---------- KPIs ---------- */
+const K=[['clk','Hora','',''],['vA','AVE 2080','ave','km/h'],['vI','Iryo 6076','iry','km/h'],['gap','Distancia entre trenes','',''],['tti','Tiempo a impacto (a v actual)','',''],['brk','Distancia de parada AVE','',''],['mar','Margen','',''],['ke','Energía cinética AVE','ave','MJ'],['pk','PK cabeza AVE','',''],['st','Estado','','']];
+K.forEach(([id,l,c])=>{const d=document.createElement('div');d.className='kpi '+c;d.id='k_'+id;d.innerHTML='<span>'+l+'</span><b>—</b><small></small>';$('kpis').appendChild(d)});
+const kset=(id,b,s,alert)=>{const e=$('k_'+id);e.querySelector('b').textContent=b;e.querySelector('small').textContent=s||'';e.classList.toggle('alert',!!alert)};
+function sunInfo(t,pk){const ll0=ll(pk);const d=new Date(Date.UTC(2026,9,28)+(t-3600)*1000);const s=SunCalc.getPosition(d,ll0[0],ll0[1]);const alt=s.altitude*180/Math.PI,az=(s.azimuth*180/Math.PI+180)%360;const h=brg(pk);let rel=((az-h+540)%360)-180;return{alt,az,h,rel}}
+function glare(s){const a=Math.abs(s.rel);if(s.alt<0)return['Sol bajo el horizonte','ok'];if(a<25&&s.alt<25)return['Deslumbramiento frontal probable','bad'];if(a<50&&s.alt<25)return['Contraluz fuerte','warn'];return['Sol lateral, fuera del cono frontal','ok']}
+function renderSun(t,pk){const s=sunInfo(t,pk),g=glare(s);const cx=60,cy=60;const pt=(ang,r)=>[cx+r*Math.sin(ang*Math.PI/180),cy-r*Math.cos(ang*Math.PI/180)];const a=pt(s.h,46),b=pt(s.az,46);
+ const times=SunCalc.getTimes(new Date(Date.UTC(2026,9,28,12)),ll(118.8)[0],ll(118.8)[1]);const sr=new Date(times.sunrise.getTime()+3600000);
+ $('sun').innerHTML=`<svg width="120" height="120" viewBox="0 0 120 120" role="img" aria-label="Rumbo de la vía y azimut del sol"><circle cx="60" cy="60" r="52" fill="none" stroke="${css('--line')}"/><text x="60" y="12" text-anchor="middle" font-size="10" fill="${css('--mut')}">N</text><line x1="60" y1="60" x2="${a[0]}" y2="${a[1]}" stroke="${css('--ave')}" stroke-width="4" stroke-linecap="round"/><line x1="60" y1="60" x2="${b[0]}" y2="${b[1]}" stroke="#e8a400" stroke-width="3" stroke-dasharray="4 3"/><circle cx="${b[0]}" cy="${b[1]}" r="6" fill="#ffc400"/></svg>
+ <div class="small" style="flex:1;min-width:200px"><b>Altura del sol:</b> ${fmt(s.alt,1)}° · <b>Azimut:</b> ${fmt(s.az)}°<br><b>Rumbo de la vía (AVE):</b> ${fmt(s.h)}° · <b>Sol respecto a la marcha:</b> ${fmt(Math.abs(s.rel))}° a la ${s.rel<0?'izquierda':'derecha'}<br><span class="pill ${g[1]}">${g[0]}</span><br>Salida del sol ${String(sr.getUTCHours()).padStart(2,'0')}:${String(sr.getUTCMinutes()).padStart(2,'0')} CET. El Iryo tenía la cola hacia el norte, de espaldas al sol; el maquinista del AVE lo veía a contraluz del paisaje iluminado.</div>`}
+
+/* ---------- cronología ---------- */
+const CHR=[
+ [hms(7,54),'Sale de Atocha el Iryo 6076 hacia Sevilla.','Wikipedia (una fuente)',1],
+ [hms(8,3),'Sale de Atocha el AVE 2080, con 3 minutos de retraso (programado 08:00).','El Español; Wikipedia',0],
+ [hms(8,30),'Cae la central LZB de Urda: se detienen los trenes de un tramo de ~63 km. 08:30 (ministro), 08:31 (AITAT), 08:32 (Transportes).','AITAT; El Independiente',0],
+ [hms(8,31,50),'El AVE queda parado cerca de Mora (Meta 0) y avisa de la pérdida de transmisión.','Renfe Data vía El Español',0],
+ [hms(8,36),'El Centro de Control ordena al AVE continuar con «marcha normal» (BSL). El Español la sitúa hacia las 08:40.','eldiario.es; Wikipedia; fuentes discrepan',1],
+ [hms(8,40),'El Iryo, parado ante la entrada de Urda, comunica que no tiene LZB; el CRC le indica continuar.','eldiario.es',1],
+ [hms(8,43,48),'El AVE se mueve de nuevo tras unos 11 minutos parado.','Renfe Data',0],
+ [hms(8,46,49),'Velocidad media del AVE entre posiciones: 145 km/h; 214 a las 08:47:49; 236 a las 08:51:49 (medias de ~1 minuto).','Renfe Data vía El Español',1],
+ [hms(8,48),'La maquinista del Iryo informa de que sigue parada ante la señal. El CRC acusa recibo sin avisar al AVE.','audios eldiario.es',0],
+ [hms(8,53),'Alcance en el PK 118+800, vía 2 (AITAT). 08:54 según audios y ministro.','AITAT',0],
+ [hms(9,10),'La AITAT recibe la notificación; Adif interrumpe la circulación Madrid–Andalucía (posterior al intervalo simulado).','AITAT; Wikipedia',0]
+];
+(function(){const ul=$('chrono');CHR.forEach(([t,x,s,lo],i)=>{const li=document.createElement('li');li.id='ch'+i;li.innerHTML=`<time>${clk(t).slice(0,8)}</time><div>${x}<span class="src">${s}${lo?'<span class="tag lo">dudoso</span>':''}</span></div>`;ul.appendChild(li)})})();
+let lastChrono=-2;function updChrono(t){let idx=-1;CHR.forEach(([tt],i)=>{if(t>=tt)idx=i});if(idx===lastChrono)return;lastChrono=idx;CHR.forEach((_,i)=>{const li=$('ch'+i);li.className=i<idx?'past':i===idx?'now':''});const n=$('ch'+idx);if(n&&n.scrollIntoView&&$('p-chr').classList.contains('on'))n.parentNode.scrollTop=n.offsetTop-60}
+
+/* ---------- tabla de incompatibilidades ---------- */
+function reqCruise(T,a,D){const disc=a*a*T*T-2*a*D;return disc<0?null:Math.min(999,(a*T-Math.sqrt(disc))*3.6)}
+function renderTim(){const D=P.headPK*1000-P.LI-P.stopPK*1000;const a=P.a;
+ const rows=[['Orden 08:36 → choque 08:48 (hora de la llamada del Iryo)',hms(8,36),hms(8,48),'Hipótesis inicial; 08:48 no es hora del choque'],['Orden 08:36 → choque 08:53 (AITAT)',hms(8,36),hms(8,53),'Si el AVE hubiera arrancado a las 08:36'],['Orden 08:36 → choque 08:54 (112, audios)',hms(8,36),hms(8,54),''],['«Unos 17 minutos sin rectificar la orden» (EFE)',hms(8,36),hms(8,53),'Cita de la base; coincide con 08:36 → 08:53'],['Reanuda 08:43:48 → choque 08:53',hms(8,43,48),hms(8,53),'Renfe Data + AITAT'],['Reanuda 08:43:48 → choque 08:54',hms(8,43,48),hms(8,54),'Renfe Data + audios']];
+ let h='<table><tr><th>Fuente / combinación</th><th>Tiempo</th><th>Media sobre '+fmt(D/1000,1)+' km</th><th>Crucero necesario (a='+fmt(a,2)+' m/s²)</th><th>Veredicto</th></tr>';
+ rows.forEach(([n,t0,t1,c])=>{const T=t1-t0,avg=D/T*3.6,v=reqCruise(T,a,D);let ver;if(v===null)ver='<span class="pill bad">imposible con esa aceleración</span>';else if(v>300)ver='<span class="pill bad">&gt;300 km/h</span>';else if(v>=150&&v<=210)ver='<span class="pill ok">encaja con 160–200</span>';else if(v<150)ver='<span class="pill warn">más lento que lo estimado (AITAT 160–200)</span>';else ver='<span class="pill warn">posible, sobre 200 km/h</span>';
+  h+=`<tr><td>${n}<span class="src">${c}</span></td><td class="mono">${fmt(T/60,1)} min</td><td class="mono">${fmt(avg)} km/h</td><td class="mono">${v===null?'—':fmt(v)+' km/h'}</td><td>${ver}</td></tr>`});
+ h+='<tr><td>Medias de Renfe Data<span class="src">145, 214, 236 y 181 km/h (posiciones cada ~1 min)</span></td><td colspan="3" class="small">Medias entre posiciones espaciadas, no velocidades instantáneas: con aceleración de ~0,5 m/s² y esas medias, el recorrido cuadra con una reanudación a las 08:43:48 y no con las 08:36.</td><td><span class="pill warn">orientativo</span></td></tr></table>';
+ $('timtab').innerHTML=h;
+ $('timnote').textContent='La distancia sale del PK de parada del AVE en Mora (dudoso, editable) hasta la cola del Iryo. Cuanto menos tiempo disponible, más alto el crucero. Las cifras publicadas no son todas compatibles entre sí. Solo el registrador jurídico del AVE puede cerrarlo.'}
+
+/* ---------- panel de resultados / estado ---------- */
+let cur=T0;
+function sumSim(){const r=SIM.res;let h='';if(r.tImp<Infinity&&r.tImp<=T1+3600){const vA=r.vImp,vf=P.mA*vA/(P.mA+P.mI);h=`Resultado: <b>alcance a las ${clk(r.tImp)}</b> a <b>${fmt(vA*3.6)} km/h</b>. Crucero ${P.auto?'calculado':'fijado'}: ${fmt(SIM.V)} km/h${SIM.vok?'':' (tope de 300 km/h; no cuadra la hora)'}. ${vA*3.6>=160&&vA*3.6<=200?'<span class="pill ok">dentro de 160–200 km/h</span>':'<span class="pill warn">fuera de 160–200 km/h (AITAT)</span>'}<br>Choque plástico: velocidad común ${fmt(vf*3.6,1)} km/h; Δv AVE −${fmt((vA-vf)*3.6,1)} km/h; Δv Iryo +${fmt(vf*3.6,1)} km/h; energía disipada ${fmt((0.5*P.mA*1000*vA*vA-0.5*(P.mA+P.mI)*1000*vf*vf)/1e6,1)} MJ. Modelo de partículas: no calcula descarrilamiento ni aplastamiento.`}else{h=`Resultado: <b>no hay alcance</b> en este escenario; ${r.stop?'el AVE se detiene a las '+clk(r.stop)+' tras ver el Iryo.':'el AVE sigue sin llegar al Iryo al final de la simulación.'}`;}
+ $('simsum').innerHTML=h}
+function recompute(){simulate();if(P.auto&&$('i_V')){$('i_V').value=P.V;$('o_V').textContent=fmt(P.V)+' km/h'}sumSim();renderTim();$('tl').max=T1-T0;drawAll(true);setCur(cur,true)}
+function setCur(t,force){cur=Math.max(T0,Math.min(T1,t));const s=at(cur);$('clock').firstChild.nodeValue=clk(cur);$('tl').value=cur-T0;
+ const tailI=s.xI-P.LI,gap=tailI-s.xA,v=s.vA,vk=v*3.6;const imp=SIM.res.tImp<Infinity&&cur>=SIM.res.tImp;
+ const pA=s.xA/1000,pI=s.xI/1000;
+ trA.setLatLngs(pkLine(pA-P.LA/1000,pA));trI.setLatLngs(pkLine(pI-P.LI/1000,pI));haloA.setLatLng(ll(pA));haloI.setLatLng(ll(pI));
+ trail.setLatLngs(cur>=P.restart?pkLine(P.stopPK,Math.max(P.stopPK+0.001,pA-P.LA/1000)):[]);
+ const brk=v*P.tr+v*v/(2*P.ab);
+ kset('clk',clk(cur),'');kset('vA',fmt(vk),v>0.1?'':'parado');kset('vI',fmt(s.vI*3.6),s.vI>0.1?'':'parado ante E242');
+ kset('gap',gap>0?(gap>=1000?fmt(gap/1000,2)+' km':fmt(gap)+' m'):'0 m','cola Iryo ↔ cabeza AVE');
+ kset('tti',v>0.5&&gap>0&&!imp?clk(gap/v).slice(3)+' min':'—','si mantiene la velocidad');
+ kset('brk',fmt(brk)+' m','reacción '+fmt(P.tr,1)+' s + frenada '+fmt(P.ab,2)+' m/s²');
+ const mar=gap-brk;kset('mar',v>0.5&&!imp?(mar>=0?'+':'')+fmt(mar)+' m':'—',mar<0&&v>0.5&&!imp?'no llega a parar':'',mar<0&&v>0.5&&!imp);
+ kset('ke',fmt(0.5*P.mA*1000*v*v/1e6,0),'masa '+fmt(P.mA)+' t (H)');
+ kset('pk',fmt(pA,3),'Iryo: cola PK '+fmt(pI-P.LI/1000,3));
+ let st=imp?'IMPACTO':v<0.1?(cur<P.restart?'parado (LZB caído)':'detenido'):(cur>=P.restart?'marcha en BSL':'frenando LZB');if(!imp&&SIM.res.seen&&cur>=SIM.res.seen+P.tr&&v>0.1&&cur>=P.restart)st='frenada de emergencia';else if(!imp&&SIM.res.seen&&cur>=SIM.res.seen&&v>0.1&&cur>=P.restart)st='reacción del maquinista';
+ kset('st',st,imp?'t = '+clk(SIM.res.tImp):'',imp);
+ // banner e impacto
+ const b=$('banner');if(imp){b.style.display='block';b.innerHTML='IMPACTO · '+clk(SIM.res.tImp)+' · '+fmt(SIM.res.vImp*3.6)+' km/h<br><span style="font-weight:400;font-size:12px">fin del modelo: no simula el descarrilamiento</span>';if(!impMk){impMk=L.marker(ll(SIM.res.x/1000),{icon:L.divIcon({className:'',html:'<div class="imp"></div>',iconSize:[1,1]}),interactive:false}).addTo(map)}else impMk.setLatLng(ll(SIM.res.x/1000))}else{b.style.display='none';if(impMk){map.removeLayer(impMk);impMk=null}}
+ if($('follow').checked){map.panTo(ll(pA),{animate:false})}
+ renderSun(cur,Math.min(125,Math.max(63,pA)));
+ updChrono(cur);
+ const nowMs=performance.now();if(force||nowMs-lastChart>60){lastChart=nowMs;drawAll(false,cur)}
+}
+
+/* ---------- reloj ---------- */
+let playing=false,spd=10,lastTs=0;
+const SPD=[1,10,30,60];SPD.forEach(s=>{const b=document.createElement('button');b.className='btn'+(s===spd?' on':'');b.type='button';b.textContent='×'+s;b.onclick=()=>{spd=s;[...$('speeds').children].forEach(c=>c.classList.toggle('on',c===b))};$('speeds').appendChild(b)});
+const fl=document.createElement('label');fl.className='small';fl.style.cssText='display:flex;align-items:center;gap:4px';fl.innerHTML='<input type="checkbox" id="follow"> seguir AVE';$('speeds').appendChild(fl);
+[['LZB cae',hms(8,30)],['Orden',hms(8,36)],['AVE parte',hms(8,43,48)],['Llamada Iryo',hms(8,48)],['Impacto',null]].forEach(([n,t])=>{const b=document.createElement('button');b.className='btn';b.type='button';b.textContent=n;b.onclick=()=>{setCur(t==null?(SIM.res.tImp<Infinity?SIM.res.tImp-20:hms(8,53)):t,true);if(t==null)map.setView(ll(P.headPK-0.15),16)};$('jumps').appendChild(b)});
+function tick(ts){if(playing){const dt=Math.min(0.1,(ts-lastTs)/1000);setCur(cur+dt*spd);if(cur>=T1){playing=false;$('play').textContent='Reproducir'}}lastTs=ts;requestAnimationFrame(tick)}
+$('play').onclick=()=>{if(cur>=T1)setCur(T0,true);playing=!playing;$('play').textContent=playing?'Pausa':'Reproducir'};
+$('tl').oninput=e=>setCur(T0+Number(e.target.value),true);
+addEventListener('keydown',e=>{if(e.code==='Space'&&!/INPUT|SELECT|TEXTAREA|BUTTON/.test(e.target.tagName)){e.preventDefault();$('play').click()}});
+let rz;addEventListener('resize',()=>{clearTimeout(rz);rz=setTimeout(()=>{drawAll(true);map.invalidateSize()},150)});
+
+/* ---------- pestañas, documentos, galería ---------- */
+const TABS=[['sim','Simulación'],['lay','Capas'],['chr','Cronología'],['tim','Tiempos'],['env','Sol y entorno'],['sat','Satélite y nubes'],['topo','Topografía'],['3d','Visor 3D'],['doc','Documentos']];
+TABS.forEach(([id,l],i)=>{const b=document.createElement('button');b.type='button';b.textContent=l;b.dataset.id=id;if(!i)b.className='on';b.onclick=()=>{[...$('tabs').children].forEach(c=>c.classList.toggle('on',c===b));document.querySelectorAll('.pane').forEach(p=>p.classList.toggle('on',p.id==='p-'+id));if(id==='3d'&&!$('f3d').src)$('f3d').src='urda3d.html';if(id==='env')setTimeout(()=>drawAll(true),30)};$('tabs').appendChild(b)});
+const GAL=[['T-01_RELIEVE_PK114-121','thumb_T-01','T-01 Relieve PK 114–121'],['T-02_DETALLE_PK118_ORTO_CURVAS','thumb_T-02','T-02 Ortofoto con curvas cada 1 m'],['T-03_PENDIENTES_PK116-120','thumb_T-03','T-03 Pendientes PK 116–120'],['T-04_PERFIL_Y_SECCIONES_PK118','thumb_T-04','T-04 Perfil y secciones del terraplén'],['T-05_TALUD_PK118_MAXIMA_DEFINICION','thumb_T-05','T-05 Talud con PNOA a 25 cm'],['S-01_SENTINEL2_ANTES_DESPUES_PK118','thumb_S-01','S-01 Sentinel-2 antes/después']];
+GAL.forEach(([f,t,l])=>{const a=document.createElement('a');a.href='img/'+f+'.png';a.target='_blank';a.rel='noopener';a.innerHTML=`<img loading="lazy" src="img/${t}.jpg" alt="${l}"><span>${l}</span>`;$('gal').appendChild(a)});
+[['laminas/URDA_L-01_SITUACION.pdf','Lámina L-01 · Situación (PDF)'],['laminas/URDA_L-02_PLANTA_DETALLE_Y_MARCHA.pdf','Lámina L-02 · Planta de detalle y marcha (PDF)'],['laminas/URDA_L-03_HIPOTESIS_SOL_E_INDICIOS.pdf','Lámina L-03 · Hipótesis, sol e indicios (PDF)'],['laminas/URDA_L-04_VISIBILIDAD_ARBOLADO.pdf','Lámina L-04 · Visibilidad con arbolado (PDF)'],['laminas/URDA_PLANOS_L-01_a_L-04.pdf','Las cuatro láminas en un PDF'],['urda_recreacion.html','Recreación esquemática de la cronología'],['planos_preliminares.html','Planos preliminares de la base (posición aproximada, sustituida por este visor)'],['urda3d.html','Visor 3D y análisis cinemático (pestaña Visor 3D)'],['docs/INVESTIGACION.md','INVESTIGACION.md · hechos, fuentes y datos que chocan'],['datos/geometria_urda.json','Geometría del eje con PK (JSON)']].forEach(([h,t])=>{const li=document.createElement('li');li.innerHTML=`<a href="${h}" target="_blank" rel="noopener">${t}</a>`;$('docs').appendChild(li)});
+
+/* ---------- arranque ---------- */
+buildCtrls();pickScen('R');
+geoInfo();
+map.on('moveend',()=>{});
+requestAnimationFrame(tick);
+probeAll();
+setTimeout(()=>{map.invalidateSize();drawAll(true)},400);
+window.__urda={get SIM(){return SIM},get P(){return P},setCur,pickScen,SV,get cur(){return cur},E242pk};
+})();
+</script>
+</body>
+</html>
