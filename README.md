@@ -6,11 +6,16 @@ Este repositorio reúne un análisis hecho **solo con información y datos públ
 
 **Visor interactivo:** https://engimine.github.io/reconstruccion-urda-pk118/
 
+**Simulador 3D (vista de cabina):** https://engimine.github.io/reconstruccion-urda-pk118/simulador.html
+
+![Vista desde la cabina del AVE en el simulador](img/SIM3D_cabina_visible.png)
+
 ## Contenido
 
 | | |
 |---|---|
 | `index.html` | Visor interactivo con servicios en vivo (IGN PNOA y MDT, Catastro, OpenRailwayMap, OpenStreetMap, Open-Meteo, posición solar) y simulación de la marcha |
+| `simulador.html` | Simulador 3D sobre terreno MDT05 y ortofoto PNOA: trenes, catenaria, sol a la hora real, hipótesis A–D, visibilidad y cámaras de cabina, aérea y lateral |
 | `urda3d.html` | Visor 3D y análisis cinemático |
 | `laminas/` | Láminas A3: L-01 situación, L-02 planta de detalle y marcha, L-03 hipótesis, sol e indicios, L-04 visibilidad con arbolado (PDF y PNG) |
 | `img/` | Figuras de topografía, visibilidad y Sentinel-2 |
